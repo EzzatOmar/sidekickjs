@@ -1,3 +1,9 @@
+# Postgresql
+docker/pgdata/*
+
+# REPL File
+secret_repl.js
+
 # Logs
 logs
 *.log

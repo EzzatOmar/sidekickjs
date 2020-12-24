@@ -1,0 +1,23 @@
+# Table definition
+
+table_name: users
+depends_on: []
+create_stmt:
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    blocked BOOLEAN NOT NULL DEFAULT FALSE
+    );
+trigger_stmt:
+  -
+description:
+  table: >
+    Base User Identity. If the user is **blocked** no REST or GraphQL actions can be performed.  
+    User concept will be extended by other tables. Usually going by the nameing convention users__<decoration> with references
+    via users__id
+  columns:
+    id: Auto incremental integer
+    created_at: Timestamp when the user was created
+    updated_at: Timestamp when the last modification has happend
+    blocked: Boolean
