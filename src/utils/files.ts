@@ -18,7 +18,10 @@ export function getFileFromDir(dirPath: string, arrayOfFiles: string [], regex?:
     if (fs.statSync(dirPath + "/" + file).isDirectory()) {
       arrayOfFiles = getFileFromDir(dirPath + "/" + file, arrayOfFiles, regex);
     } else {
-      arrayOfFiles.push(path.join(dirPath, "/", file));
+      let filePath = path.join(dirPath, "/", file);
+      if((!regex) || new RegExp(regex).test(filePath)) {
+        arrayOfFiles.push(filePath);
+      }
     }
   })
 
