@@ -7,7 +7,7 @@ services:
       - 6543:5432
     environment:
       - POSTGRES_PASSWORD=psqlpw123
-      - POSTGRES_USER=do-admin
+      - POSTGRES_USER=sidekick_admin
       - POSTGRES_DB=sidekick
       - POSTGRES_HOST=postgres
       - PGDATA=/var/lib/postgresql/data/pgdata
@@ -18,3 +18,4 @@ services:
         max-file: "10"
     volumes:
       - ./docker/pgdata:/var/lib/postgresql/data/pgdata
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
