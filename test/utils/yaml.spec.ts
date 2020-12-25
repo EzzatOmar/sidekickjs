@@ -30,7 +30,7 @@ describe("Parse Yaml", () => {
     shrink_db_config(db_config);
     db_config
     .should.eql({
-      namespace: "sidekickjs",
+      namespace: "sidekick",
       type: "DBConfig",
       doc: "Base User Identity. If the user is **blocked** no REST or GraphQL actions can be performed. User concept will be extended by other tables. Usually going by the nameing convention users__<decoration> with references via users__id",
       table_name: "users",

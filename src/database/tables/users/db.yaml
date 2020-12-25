@@ -1,5 +1,5 @@
 # Table definition
-namespace: sidekickjs
+namespace: sidekick
 type: DBConfig
 table_name: users
 depends_on: []
