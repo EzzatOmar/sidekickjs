@@ -28,7 +28,6 @@
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.16",
     "@types/pg": "^7.14.7",
-    "assert": "^2.0.0",
     "chai": "^4.2.0",
     "chai-immutable": "^2.1.0",
     "fsevents": "^2.2.1",

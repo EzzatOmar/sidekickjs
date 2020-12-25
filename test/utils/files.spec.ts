@@ -1,11 +1,7 @@
-import {strictEqual} from "assert";
 import chai from "chai";
 import {getFileFromDir} from "../../src/utils/files"; 
 
 chai.should();
-
-
-console.log(getFileFromDir("src/database/tables",[]));
 
 describe("Test listing files recursively", () => {
   it("every file", () => {
@@ -20,8 +16,5 @@ describe("Test listing files recursively", () => {
     files.forEach(f => {
       f.should.match(new RegExp(".yaml$"));
     })
-
   })
-  
-})
-
+});

@@ -1,16 +1,16 @@
 # Table definition
-
+namespace: sidekickjs
+type: DBConfig
 table_name: users
 depends_on: []
-create_stmt:
+create_stmt: >
   CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     blocked BOOLEAN NOT NULL DEFAULT FALSE
     );
-trigger_stmt:
-  -
+trigger_stmt: []
 description:
   table: >
     Base User Identity. If the user is **blocked** no REST or GraphQL actions can be performed.  
