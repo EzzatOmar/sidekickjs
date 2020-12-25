@@ -16,6 +16,13 @@ function shrink_db_config(db_config:any) {
 }
 
 describe("Parse Yaml", () => {
+  it("Invalid Config Map", (done) => {
+    try {
+      yaml_to_db_config('[ true, false, maybe, null ]\n')
+    } catch(err){
+      done();
+    }
+  })
   it("User database config", () => {
     let yaml_path = getFileFromDir("src/database/tables/users", [], "yaml")[0];
     let yaml_str = readFileSync(yaml_path, "utf8");
