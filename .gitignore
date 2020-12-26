@@ -1,6 +1,9 @@
 # Postgresql
 docker/pgdata/*
 
+# Extensions
+src/extensions/
+
 # REPL File
 secret_repl.js
 
