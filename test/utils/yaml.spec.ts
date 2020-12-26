@@ -36,7 +36,8 @@ describe("Parse Yaml", () => {
       table_name: "users",
       depends_on: [],
       create_stmt: "CREATE TABLE IF NOT EXISTS users ( id SERIAL PRIMARY KEY, created_at TIMESTAMP NOT NULL DEFAULT NOW(), updated_at TIMESTAMP NOT NULL DEFAULT NOW(), blocked BOOLEAN NOT NULL DEFAULT FALSE );",
-      trigger_stmt: [],
+      trigger_stmt: [
+        "DROP TRIGGER IF EXISTS update_users_updated_at ON users; CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();"      ],
       description: {
         table: "Base User Identity. If the user is **blocked** no REST or GraphQL actions can be performed. User concept will be extended by other tables. Usually going by the nameing convention users__<decoration> with references via users__id",
         columns: {

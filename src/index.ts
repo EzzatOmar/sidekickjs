@@ -1,13 +1,32 @@
-// const Koa = require("koa");
+const dotenv = require("dotenv")
+dotenv.config()
+
 import Koa from "koa";
 import Router from "koa-router";
 import pg from "pg";
 import { Map } from "immutable";
+import {query, getClient} from "./database/core";
+import {initialize_tables} from "./database/init";
 
-const foo = Map<String, Number>([["Hello", 12]])
+getClient().then(client => {
+  // client.query("SELECT 1")
+  // console.log(client)
+  initialize_tables(client).then(console.log)
+
+})
+
+
+/**
+ * Starting Point
+ * We expect a running postgres instance and the connection information in the .env file
+ * 
+ * First the database will be initialize
+ *  Reading all yaml files in src/database/tabes
+ * 
+ * 
+ */
 const app = new Koa();
 const router = new Router();
-1+1;
 
 router.get("/", (ctx:Koa.ParameterizedContext, next) => {
   ctx.body = "HELLO";
@@ -20,5 +39,3 @@ app
   .use(router.allowedMethods());
 
 app.listen(3000);
-console.log('HELLO TS', foo.toJSON(),";", 12, "sas");
-console.log('12')

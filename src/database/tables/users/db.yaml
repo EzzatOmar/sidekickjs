@@ -10,7 +10,10 @@ create_stmt: >
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     blocked BOOLEAN NOT NULL DEFAULT FALSE
     );
-trigger_stmt: []
+trigger_stmt:
+  - DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+    CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
 description:
   table: >
     Base User Identity. If the user is **blocked** no REST or GraphQL actions can be performed.  
