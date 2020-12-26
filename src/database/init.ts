@@ -15,6 +15,12 @@ async function initialize_table (client:PoolClient, db_config:DBConfig):Promise<
   await client.query( `SET SCHEMA '${db_config.namespace}';`, [] );
   await client.query(db_config.create_stmt, []);
   await Promise.all(db_config.trigger_stmt.map(sql => client.query(sql, [])));
+  if(db_config.description && db_config.description?.table)
+    await client.query( `COMMENT ON TABLE ${db_config.table_name} IS '${db_config.description.table}';`, [] );
+  if(db_config.description && db_config.description?.columns)
+    for(const key in db_config.description.columns)
+      await client.query( `COMMENT ON COLUMN ${db_config.table_name}.${key} IS '${db_config.description.columns[key]}';`, [] );
+      
   return db_config;
 }
 
@@ -27,6 +33,7 @@ export async function initialize_tables(client: PoolClient) {
       return initialize_table(client, db_config).then(db_config => console.log(`Table ${db_config.table_name} created.`));
     });
     await Promise.all(promises);
+    await client.query(`SET ROLE 'sidekick_api';`, []);
     client.query('COMMIT')
   } catch (e) {
     await client.query('ROLLBACK')

@@ -1,7 +1,5 @@
 import {Pool, PoolClient, QueryResult} from "pg";
 
-
-
 // Uses the env vars to initialize database connection
 const pool = new Pool();
 

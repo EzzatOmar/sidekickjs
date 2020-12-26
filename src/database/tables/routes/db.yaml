@@ -1,0 +1,36 @@
+# Table definition
+namespace: sidekick
+type: DBConfig
+table_name: routes
+depends_on: []
+create_stmt: >
+  CREATE TABLE IF NOT EXISTS routes (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    name TEXT NOT NULL CHECK (name = lower(name)),
+    route TEXT NOT NULL CHECK (route ~* '^/.*'),
+    method TEXT NOT NULL CHECK (method IN ('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE')),
+    handler TEXT NOT NULL CHECK (handler ~* '^[^.]+\.[^.]+$'),
+    middleware TEXT NOT NULL CHECK (middleware ~* '^[^.]+\.[^.]+$'),
+    namespace TEXT NOT NULL CHECK (char_length(namespace) > 0),
+    active BOOLEAN NOT NULL DEFAULT false,
+    admin_route BOOLEAN NOT NULL DEFAULT false,
+    priority INTEGER,
+    description TEXT NOT NULL,
+    UNIQUE(route, method)
+   );
+trigger_stmt:
+  - DROP TRIGGER IF EXISTS update_routes_updated_at ON routes;
+    CREATE TRIGGER update_routes_updated_at BEFORE UPDATE ON routes
+    FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+description:
+  table: >
+    Each route will be saved here. Route, method tuple must be unique.
+  columns:
+    id: Auto incremental integer
+    created_at: Timestamp when the user was created
+    updated_at: Timestamp when the last modification has happend
+    method: Must be one of (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, CONNECT, TRACE)
+    handler: Must be in from of schema.function_name. The Schema is the same as the namespace.
+    name: Only for description purpose
