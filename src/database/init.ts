@@ -1,4 +1,4 @@
-import {Pool, PoolClient, QueryResult} from "pg";
+import {PoolClient} from "pg";
 import {getFileFromDir} from "../utils/files";
 import {yaml_to_db_config} from "../utils/yaml";
 import {readFileSync} from "fs";
@@ -34,9 +34,9 @@ export async function initialize_tables(client: PoolClient) {
     });
     await Promise.all(promises);
     await client.query(`SET ROLE 'sidekick_api';`, []);
-    client.query('COMMIT')
+    client.query('COMMIT');
   } catch (e) {
-    await client.query('ROLLBACK')
+    await client.query('ROLLBACK');
     throw e
   } finally {
     client.release();
