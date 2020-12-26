@@ -1,0 +1,34 @@
+# Table definition
+namespace: sidekick
+type: DBConfig
+table_name: global
+depends_on:
+  - users
+create_stmt: >
+  CREATE TABLE IF NOT EXISTS global (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    users__id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    key TEXT NOT NULL UNIQUE,
+    val_bool BOOL,
+    val_text TEXT,
+    val_int INTEGER,
+    CONSTRAINT val_not_null CHECK (val_bool is not null or val_text is not null or val_int is not null)
+  );
+trigger_stmt:
+  - DROP TRIGGER IF EXISTS update_global_updated_at ON global;
+    CREATE TRIGGER update_global_updated_at BEFORE UPDATE ON global
+    FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+description:
+  table: >
+    Stores global state in the database. Value must be bool, text or int.
+  columns:
+    id: Auto incremental integer
+    created_at: Timestamp when the user was created
+    updated_at: Timestamp when the last modification has happend
+    users__id: Reference id from the users table
+    key: Unique key to get value
+    val_bool: Boolean, true or false
+    val_text: Text
+    val_int: Integer

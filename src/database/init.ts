@@ -30,7 +30,9 @@ export async function initialize_tables(client: PoolClient) {
     await client.query(`SET ROLE 'sidekick_admin';`, []);
     let promises = getFileFromDir("./src/database/tables", [], "\.yaml$").map(filename=>{
       let db_config = yaml_to_db_config(readFileSync(filename, "utf8"));
-      return initialize_table(client, db_config).then(db_config => console.log(`Table ${db_config.table_name} created.`));
+      return initialize_table(client, db_config)
+      .then(db_config => console.log(`Table ${db_config.table_name} created.`))
+      .catch(err => console.log(err.message));
     });
     await Promise.all(promises);
     await client.query(`SET ROLE 'sidekick_api';`, []);
