@@ -8,19 +8,15 @@ describe("Table name destructuring", () => {
     destructure_table_name("a")
     .should.eql({table_name: "a"});
 
-    destructure_table_name("fo")
-    .should.eql({table_name: "fo"});
+    destructure_table_name("fo", "bd")
+    .should.eql({table_name: "fo", namespace: "bd"});
 
-    destructure_table_name("hello.one")
+    destructure_table_name("hello.one", "test")
     .should.eql({table_name: "one", namespace: "hello"});
 
     destructure_table_name("hello.test_1")
     .should.eql({table_name: "test_1", namespace: "hello"});
 
-    console.log(
-      "sdf.sdf".split(".")
-      
-      )
   });
 
 });

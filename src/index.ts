@@ -7,13 +7,7 @@ import pg from "pg";
 import { Map } from "immutable";
 import {query, getClient} from "./database/core";
 import {initialize_tables} from "./database/init";
-
-getClient().then(client => {
-  // client.query("SELECT 1")
-  // console.log(client)
-  initialize_tables(client).then(console.log)
-
-})
+import {initialize_extensions} from "./init_extensions";
 
 
 /**
@@ -23,8 +17,20 @@ getClient().then(client => {
  * First the database will be initialize
  *  Reading all yaml files in src/database/tabes
  * 
- * 
+ * Initialize all extensions
  */
+
+getClient().then(client => {
+  // client.query("SELECT 1")
+  // console.log(client)
+  initialize_tables(client).then(console.log)
+});
+
+// getClient().then(client => {
+//   initialize_extensions(client)
+// })
+
+
 const app = new Koa();
 const router = new Router();
 
