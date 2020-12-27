@@ -1,4 +1,4 @@
-import {DBConfig, ConfigMap} from "../config_map";
+import {DBConfig, ConfigMap, ExtensionConfig} from "../config_map";
 import YAML from "yaml"
 import {Set} from "immutable";
 
@@ -17,6 +17,7 @@ function yaml_to_ConfigMap(yaml: string): ConfigMap {
   }
   return config_map as ConfigMap;
 }
+
 /**
  * Returns a DBConfig
  * 
@@ -29,5 +30,44 @@ export function yaml_to_db_config(yaml: string):DBConfig {
   let db_config = yaml_to_ConfigMap(yaml) as DBConfig;
   if(db_config.description && db_config.description.table)
     db_config.doc = db_config.description.table;
+  if(db_config.type !== "DBConfig") {
+      throw new Error('Invalid type: must be DBConfig. Type found: ' + db_config.type);
+    }
   return db_config;
+}
+
+/**
+ * Returns a ExtensionConfig
+ * 
+ * Pure function
+ * @param yaml Yaml string, should be read from a file before
+ * 
+ * TODO: Improve internal validation
+ */
+export function yaml_to_extension_config(yaml: string):ExtensionConfig {
+  let config = yaml_to_ConfigMap(yaml) as ExtensionConfig;
+  if(config.type !== "ExtensionConfig") {
+      throw new Error('Invalid type: must be ExtensionConfig. Type found: ' + config.type);
+    }
+  return config;
+}
+
+/**
+ * Returns either an ExtensionConfig, DBConfig, HandlerConfig, MiddlewareConfig, RouteConfig
+ * 
+ * Pure function
+ * @param yaml Yaml string, should be read from a file before
+ * 
+ * TODO: Improve internal validation
+ */
+export function parse(yaml: string):ExtensionConfig | DBConfig {
+  let config = yaml_to_ConfigMap(yaml) as ExtensionConfig;
+  switch (config.type) {
+    case "DBConfig":
+      return yaml_to_db_config(yaml);
+    case "ExtensionConfig":
+      return yaml_to_extension_config(yaml);
+    default:
+      throw new Error('Invalid type: must be ExtensionConfig.');
+  }
 }
