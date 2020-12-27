@@ -16,3 +16,10 @@ export interface DBConfig extends ConfigMap {
     }
   }
 }
+
+export interface ExtensionConfig extends ConfigMap {
+  version: string,
+  url: string,
+  depends_on: [],
+  doc?: string
+}
