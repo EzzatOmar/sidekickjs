@@ -3,6 +3,7 @@ import {destructure_table_name} from "../../src/utils/conversion";
 import {DBConfig} from "../../src/config_map";
 import chai from "chai";
 import {List} from "immutable";
+import { doesNotReject } from "assert";
 
 chai.should();
 const expect = chai.expect;
@@ -128,6 +129,9 @@ describe("Test db_config_depends_on_elements", () => {
 
     let l4 = List([db_root, db_b, db_a]);
     expect(db_config_depends_on_elements(l4, db_a_a2)).to.be.equal(-1);
+
+    let l5 = List([db_root, db_b, db_a2]);
+    expect(db_config_depends_on_elements(l5, db_a_a2)).to.be.equal(2);
   });
 });
 
@@ -144,32 +148,39 @@ describe("Test element_depends_on_db_config", () => {
 
     let l4 = List([db_root, db_b, db_a, db_a_a2]);
     expect(element_depends_on_db_config(l4, db_a2)).to.be.equal(3);
+
+    let l5 = List([db_a_a]);
+    expect(element_depends_on_db_config(l5, db_a)).to.be.equal(0);
   });
 });
 
 describe("Test if reordering works", () => {
-  // it("Reorder: good case", () => {
-  //   const configs = [db_a_a, db_a, db_root2, db_b, db_root, db_b];
-  //   const sorted = sort_db_config(configs);
-
-  //   assert.isTrue(
-  //     sorted.every((v,k)=>{
-  //       const listAfterEl = sorted.slice(k+1);
-  //       // we need to check if no depends_on table_name is in listAfterEl
-  //       return v.depends_on.every(table_name => {
-  //         const t = destructure_table_name(table_name);
-  //         // no dependency should appear after the current DBConfig
-  //           return listAfterEl.every(v2 => !(v2.table_name === t.table_name && v2.namespace === (t.namespace || v.namespace)) );
-  //         });
-  //       })
-  //   );
-  // })
+  it("Reorder: good case", () => {
+    const configs = [db_a_a, db_a, db_root2, db_b, db_root, db_b];
+    const sorted = sort_db_config(configs);
+    chai.assert.isTrue(
+      sorted.every((v,k)=>{
+        const listAfterEl = sorted.slice(k+1);
+        // we need to check if no depends_on table_name is in listAfterEl
+        return v.depends_on.every(table_name => {
+          const t = destructure_table_name(table_name);
+          // no dependency should appear after the current DBConfig
+            return listAfterEl.every(v2 => !(v2.table_name === t.table_name && v2.namespace === (t.namespace || v.namespace)) );
+          });
+        })
+    );
+  })
 
   it("Reorder: good case with 2 namespaces and same table name", () => {
 
   })
 
-  it("Reorder: bad case with cyclic dependencies", () => {
-
+  it("Reorder: bad case with cyclic dependencies", (done) => {
+    try {
+      const configs = [db_a_a, db_a, db_root2, db_b, db_root, db_b, db_cycle2, db_cycle1, db_cycle22, db_cycle11];
+      const sorted = sort_db_config(configs);
+    } catch(err) {
+      done();
+    }
   })
 })

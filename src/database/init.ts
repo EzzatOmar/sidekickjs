@@ -35,7 +35,6 @@ export async function initialize_table (client:PoolClient, db_config:DBConfig):P
  * @param db_config must not be included in the sorted List
  */
 export function element_depends_on_db_config(sorted:List<DBConfig>, db_config:DBConfig) : number{
-  console.log(sorted.map(x => x.namespace + "." + x.table_name).toArray(), db_config.namespace + "." + db_config.table_name);
   let n = -1;
   sorted.map((x,i) => {
     let index_found = x.depends_on.map(d => destructure_table_name(d, x.namespace)).findIndex(v => {
@@ -45,7 +44,7 @@ export function element_depends_on_db_config(sorted:List<DBConfig>, db_config:DB
     else return -1;
   }
   ).forEach(v => {
-    if (v && v >= 0){
+    if (v >= 0 && v >= 0){
       if(n >= 0 && n > v) {
         n = v;
       } else if(n < 0)
@@ -87,8 +86,8 @@ export function sort_db_config(configs: DBConfig[]):List<DBConfig> {
     console.log(i, j)
     // thows if there is a cyclic dependency
     if (i >= 0 && j >= 0) throw new Error("Cyclic depenendcy found.");
-    else if (i >= 0) sorted = sorted.insert(i, db_config);
-    else if (j >= 0) sorted = sorted.insert(i+1, db_config);
+    else if (i > j) sorted = sorted.insert(i, db_config);
+    else if (j >= 0) sorted = sorted.insert(i-1, db_config);
     else sorted = sorted.push(db_config);
   })
 
