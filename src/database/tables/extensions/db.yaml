@@ -9,7 +9,9 @@ create_stmt: >
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     version TEXT NOT NULL,
-    url TEXT
+    url TEXT,
+    doc TEXT,
+    state JSON
   );
 trigger_stmt:
   - DROP TRIGGER IF EXISTS update_extensions_updated_at ON extensions;
@@ -24,4 +26,6 @@ description:
     created_at: Timestamp when the user was created
     updated_at: Timestamp when the last modification has happend
     version: e.g. 1.0.0
-    url: Webpage for more information if available
+    url: Optional. Webpage for more information if available
+    doc: Optional. Documentation as text.
+    state: JSON object. Is set to the state key in the yaml file on creating this row. Updating the state key in the YAML file will not trigger updates.

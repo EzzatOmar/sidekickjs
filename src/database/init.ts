@@ -100,7 +100,7 @@ export async function initialize_tables(client: PoolClient) {
     await Promise.all(
       db_configs.map(x => 
         initialize_table(client, x)
-        .catch(err => console.log(`Error in initializing table ${x.table_name}, ${err}`))).toArray()
+        .catch(err => console.log(`Error while initializing table ${x.table_name}, ${err}`))).toArray()
       );
     await client.query(`SET ROLE 'sidekick_api';`, []);
     await client.query('COMMIT');

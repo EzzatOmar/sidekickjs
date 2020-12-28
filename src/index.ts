@@ -20,16 +20,18 @@ import {initialize_extensions} from "./init_extensions";
  * Initialize all extensions
  */
 
-getClient().then(client => {
-  // client.query("SELECT 1")
-  // console.log(client)
-  initialize_tables(client).then(console.log)
-});
+async function init(){
+  await getClient()
+  .then(initialize_tables)
+  .then(_ => console.log("Init default tables completed."));
+  
+  await getClient().then(client => {
+    initialize_extensions(client)
+  }).then(_ => console.log("Init extensions completed"));
 
-// getClient().then(client => {
-//   initialize_extensions(client)
-// })
+}
 
+init();
 
 const app = new Koa();
 const router = new Router();

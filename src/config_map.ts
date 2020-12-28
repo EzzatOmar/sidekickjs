@@ -20,5 +20,7 @@ export interface DBConfig extends ConfigMap {
 export interface ExtensionConfig extends ConfigMap {
   version: string,
   url?: string,
-  depends_on: []
+  default_state?: any,
+  depends_on: string[],
+  create_functions?: string[]
 }
