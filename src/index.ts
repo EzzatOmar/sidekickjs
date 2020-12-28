@@ -22,6 +22,11 @@ import {init_roles} from "./roles/init";
 
 async function init(){
   await getClient()
+  .then(client => {
+    client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
+  });
+
+  await getClient()
   .then(initialize_tables)
   .then(_ => console.log("Init default tables completed."));
   
