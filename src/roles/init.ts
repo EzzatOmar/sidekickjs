@@ -10,8 +10,20 @@ import {RoleConfig} from "../config_map";
  * @param role_config 
  */
 export async function create_role(client: PoolClient, role_config: RoleConfig) {
-  console.log(role_config)
-  client.query(`CREATE ROLE ${role_config.role_name};`);
+  client.query(`
+  DO
+    $do$
+    BEGIN
+      IF NOT EXISTS (
+          SELECT FROM pg_catalog.pg_roles  -- SELECT list can be empty for this
+          WHERE  rolname = '${role_config.role_name}') THEN
+
+          CREATE ROLE ${role_config.role_name} ;
+      END IF;
+    END
+    $do$;
+  `);
+
   if(!!role_config.doc)
     client.query(`COMMENT ON ROLE ${role_config.role_name} IS '${role_config.doc}'`);
 }
@@ -24,7 +36,7 @@ export async function init_roles(client: PoolClient) {
                   .map(filename=> parse(readFileSync(filename, "utf8")));
     let roles = configs.filter(x => x.type === 'RoleConfig') as RoleConfig[];
 
-    // console.log(`Extensions found: ${extensions.map(x => x.namespace)}`)
+    console.log(`Roles found: ${roles.map(x => x.role_name)}`)
     
     await Promise.all(roles.map(x => create_role(client, x)));
 
