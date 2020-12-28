@@ -76,14 +76,8 @@ export function db_config_depends_on_elements(sorted:List<DBConfig>, db_config:D
 export function sort_db_config(configs: DBConfig[]):List<DBConfig> {
   let sorted :List<DBConfig> = List();
   configs.forEach(db_config => {
-    console.log(
-      db_config.namespace + "." + db_config.table_name,
-      sorted.map(x => x.namespace + '.' + x.table_name).toArray()
-
-    )
     let i = element_depends_on_db_config(sorted, db_config);
     let j = db_config_depends_on_elements(sorted, db_config);
-    console.log(i, j)
     // thows if there is a cyclic dependency
     if (i >= 0 && j >= 0) throw new Error("Cyclic depenendcy found.");
     else if (i > j) sorted = sorted.insert(i, db_config);
@@ -98,12 +92,11 @@ export async function initialize_tables(client: PoolClient) {
   try {
     await client.query('BEGIN');
     await client.query(`SET ROLE 'sidekick_admin';`, []);
-    let promises = getFileFromDir("./src/database/tables", [], "\.yaml$").map(filename=>{
-      return yaml_to_db_config(readFileSync(filename, "utf8"));
-      // return initialize_table(client, db_config)
-      // .then(db_config => console.log(`Table ${db_config.table_name} created.`))
-      // .catch(err => console.log(err.message));
-    });
+    let db_configs = sort_db_config(
+      getFileFromDir("./src/database/tables", [], "\.yaml$")
+      .map(filename => yaml_to_db_config(readFileSync(filename, "utf8")))
+    );
+    db_configs.map(x => initialize_table(client, x)).toArray()
     // await Promise.all(promises);
     await client.query(`SET ROLE 'sidekick_api';`, []);
     await client.query('COMMIT');

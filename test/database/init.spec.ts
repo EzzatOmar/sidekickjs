@@ -180,6 +180,7 @@ describe("Test if reordering works", () => {
       const configs = [db_a_a, db_a, db_root2, db_b, db_root, db_b, db_cycle2, db_cycle1, db_cycle22, db_cycle11];
       const sorted = sort_db_config(configs);
     } catch(err) {
+      
       done();
     }
   })
