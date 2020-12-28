@@ -1,4 +1,3 @@
-import {query, getClient} from "./database/core";
 import {PoolClient} from "pg";
 import {getFileFromDir} from "./utils/files";
 import {parse} from "./utils/yaml";

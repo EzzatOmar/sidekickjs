@@ -24,3 +24,7 @@ export interface ExtensionConfig extends ConfigMap {
   depends_on: string[],
   create_functions?: string[]
 }
+
+export interface RoleConfig extends ConfigMap {
+  role_name: string
+}

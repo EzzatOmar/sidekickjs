@@ -1,8 +1,8 @@
-import {DBConfig, ConfigMap, ExtensionConfig} from "../config_map";
+import {DBConfig, ConfigMap, ExtensionConfig, RoleConfig} from "../config_map";
 import YAML from "yaml"
 import {Set} from "immutable";
 
-const types = Set(["DBConfig", "RouteConfig", "HandlerConfig", "MiddlewareConfig", "ExtensionConfig"]);
+const types = Set(["DBConfig", "RouteConfig", "HandlerConfig", "MiddlewareConfig", "ExtensionConfig", "RoleConfig"]);
 
 function yaml_to_ConfigMap(yaml: string): ConfigMap {
   let config_map = YAML.parse(yaml);
@@ -53,20 +53,38 @@ export function yaml_to_extension_config(yaml: string):ExtensionConfig {
 }
 
 /**
- * Returns either an ExtensionConfig, DBConfig, HandlerConfig, MiddlewareConfig, RouteConfig
+ * Returns a RoleConfig
  * 
  * Pure function
  * @param yaml Yaml string, should be read from a file before
  * 
  * TODO: Improve internal validation
  */
-export function parse(yaml: string):ExtensionConfig | DBConfig {
+export function yaml_to_role_config(yaml: string):RoleConfig {
+  let config = yaml_to_ConfigMap(yaml) as RoleConfig;
+  if(config.type !== "RoleConfig") {
+      throw new Error('Invalid type: must be RoleConfig. Type found: ' + config.type);
+    }
+  return config;
+}
+
+/**
+ * Returns either an ExtensionConfig, DBConfig, HandlerConfig, MiddlewareConfig, RouteConfig, RoleConfig
+ * 
+ * Pure function
+ * @param yaml Yaml string, should be read from a file before
+ * 
+ * TODO: Improve internal validation
+ */
+export function parse(yaml: string):ExtensionConfig | DBConfig | RoleConfig {
   let config = yaml_to_ConfigMap(yaml) as ExtensionConfig;
   switch (config.type) {
     case "DBConfig":
       return yaml_to_db_config(yaml);
     case "ExtensionConfig":
       return yaml_to_extension_config(yaml);
+    case "RoleConfig":
+      return yaml_to_role_config(yaml);
     default:
       throw new Error('Invalid type: must be ExtensionConfig.');
   }

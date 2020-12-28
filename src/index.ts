@@ -8,7 +8,7 @@ import { Map } from "immutable";
 import {query, getClient} from "./database/core";
 import {initialize_tables} from "./database/init";
 import {initialize_extensions} from "./init_extensions";
-
+import {init_roles} from "./roles/init";
 
 /**
  * Starting Point
@@ -28,6 +28,10 @@ async function init(){
   await getClient().then(client => {
     initialize_extensions(client)
   }).then(_ => console.log("Init extensions completed"));
+
+  await getClient().then(client => {
+    init_roles(client)
+  }).then(_ => console.log("Init default roles completed"));
 
 }
 
