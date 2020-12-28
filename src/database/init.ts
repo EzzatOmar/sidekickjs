@@ -96,8 +96,12 @@ export async function initialize_tables(client: PoolClient) {
       getFileFromDir("./src/database/tables", [], "\.yaml$")
       .map(filename => yaml_to_db_config(readFileSync(filename, "utf8")))
     );
-    db_configs.map(x => initialize_table(client, x)).toArray()
-    // await Promise.all(promises);
+    console.log(`Initialize table order: ${db_configs.map(x => x.table_name).toArray()}`)
+    await Promise.all(
+      db_configs.map(x => 
+        initialize_table(client, x)
+        .catch(err => console.log(`Error in initializing table ${x.table_name}, ${err}`))).toArray()
+      );
     await client.query(`SET ROLE 'sidekick_api';`, []);
     await client.query('COMMIT');
   } catch (e) {

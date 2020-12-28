@@ -2,10 +2,11 @@
 namespace: sidekick
 type: DBConfig
 table_name: users_password
-depends_on: []
+depends_on:
+  - users
 create_stmt: >
   CREATE TABLE IF NOT EXISTS users_password (
-    users__id Integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    id Integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     password_hash CHAR(60),
@@ -19,7 +20,7 @@ trigger_stmt:
 description:
   table: >
     Extends the base user table by the concept of passwords. Each password is stored as a hash and can have a recovery code.
-    It's possible to have multiple passwords per user.
+    It is possible to have multiple passwords per user.
   columns:
     id: Auto incremental integer
     created_at: Timestamp when the user was created

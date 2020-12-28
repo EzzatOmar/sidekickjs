@@ -17,6 +17,7 @@ async function upsert_extension(client: PoolClient, extension : ExtensionConfig)
 
 export async function initialize_extensions(client: PoolClient) {
   try {
+    console.log('FFF')
     await client.query('BEGIN');
     await client.query(`SET ROLE 'sidekick_api';`, []);
     let promises = getFileFromDir("./src/extensions", [], "\.yaml$").map(filename=>{
