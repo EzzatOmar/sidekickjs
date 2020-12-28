@@ -1,0 +1,27 @@
+# Table definition
+namespace: sidekick
+type: DBConfig
+table_name: extensions
+depends_on: []
+create_stmt: >
+  CREATE TABLE IF NOT EXISTS extensions (
+    namespace TEXT PRIMARY KEY CHECK (namespace = lower(namespace)),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    version TEXT NOT NULL,
+    url TEXT
+  );
+trigger_stmt:
+  - DROP TRIGGER IF EXISTS update_extensions_updated_at ON extensions;
+    CREATE TRIGGER update_extensions_updated_at BEFORE UPDATE ON extensions
+    FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+description:
+  table: >
+    Stores all the extensions read from the yaml files. Also keeps state as JSON for each extension.
+    The json state should usually only be written by the extension.
+  columns:
+    namespace: Lower case text, primary key, must be unique
+    created_at: Timestamp when the user was created
+    updated_at: Timestamp when the last modification has happend
+    version: e.g. 1.0.0
+    url: Webpage for more information if available
