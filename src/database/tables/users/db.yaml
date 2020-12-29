@@ -6,8 +6,8 @@ depends_on: []
 create_stmt: >
   CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
     blocked BOOLEAN NOT NULL DEFAULT FALSE
     );
 trigger_stmt:

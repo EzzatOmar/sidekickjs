@@ -6,8 +6,8 @@ depends_on: []
 create_stmt: >
   CREATE TABLE IF NOT EXISTS routes (
     id SERIAL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
     name TEXT NOT NULL CHECK (name = lower(name)),
     route TEXT NOT NULL CHECK (route ~* '^/.*'),
     method TEXT NOT NULL CHECK (method IN ('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE')),

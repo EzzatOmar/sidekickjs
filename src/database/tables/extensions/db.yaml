@@ -6,8 +6,8 @@ depends_on: []
 create_stmt: >
   CREATE TABLE IF NOT EXISTS extensions (
     namespace TEXT PRIMARY KEY CHECK (namespace = lower(namespace)),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
     version TEXT NOT NULL,
     url TEXT,
     doc TEXT,

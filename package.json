@@ -4,11 +4,13 @@
   "description": "Modern opinionated web backend for rapid prototyping",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo `Error: $(grep NODE_ENV .env | cut -d '=' -f2) no test specified` && exit 1",
+    "test2": "(grep PGUSER_API_PW .env | cut -d '=' -f2 )",
     "compile": "npx tsc",
     "watch": "npx tsc -w",
     "nodemon": "nodemon .",
-    "test-watch": "mocha --recursive --watch"
+    "test-watch": "mocha --recursive --watch",
+    "watch-graphql": "npx postgraphile -c postgres://sidekick_api:hanbikasdfhla45vjwA@localhost:6543/sidekick --enhance-graphiql --allow-explain --default-role sidekick_public --watch --owner-connection postgres://sidekick_admin:psqlpw123@localhost:6543/sidekick --jwt-token-identifier sidekick.jwt --jwt-secret SECRET_FOR_JWT"
   },
   "repository": {
     "type": "git",
