@@ -11,6 +11,8 @@ import {initialize_extensions} from "./init_extensions";
 import {init_roles} from "./roles/init";
 import {getFileFromDir} from "./utils/files";
 import {readFileSync} from "fs";
+import { postgraphile } from "postgraphile";
+
 
 /**
  * Starting Point
@@ -68,9 +70,43 @@ router.get("/", (ctx:Koa.ParameterizedContext, next) => {
   
   
 })
+getClient().then()
+
+let sidekick_api_database_url = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
+let sidekick_admin_database_url = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
+
+getClient().then(client => {
+  let r = client.query(`select namespace from sidekick.extensions;`).then(res => res.rows.map(r => r.namespace));
+  client.release();
+  return r;
+}).then(schema => {
+  app.use(
+    postgraphile(
+      sidekick_api_database_url, 
+      [...schema,'sidekick'], 
+      {
+        graphqlRoute: "/api/graphql/v1",
+        graphiqlRoute: '/api/graphiql/v1',
+        eventStreamRoute: "/api/graphql/event/v1",
+        subscriptions: true,
+        retryOnInitFail: true,
+        dynamicJson: true,
+        setofFunctionsContainNulls: false,
+        pgDefaultRole: "sidekick_public",
+        jwtSecret: "SECRET_FOR_JWT",
+        jwtPgTypeIdentifier: "sidekick.jwt_token",
+        // dev
+        watchPg: true,
+        graphiql: true,
+        enhanceGraphiql: true,
+        ownerConnectionString: sidekick_admin_database_url
+      })
+  )
+});
 
 app
   .use(router.routes())
   .use(router.allowedMethods());
+  
 
 app.listen(3000);
