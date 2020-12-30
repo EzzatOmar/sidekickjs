@@ -22,7 +22,24 @@ export async function initialize_table (client:PoolClient, db_config:DBConfig):P
   if(db_config.description && db_config.description?.columns)
     for(const key in db_config.description.columns)
       await client.query( `COMMENT ON COLUMN ${db_config.table_name}.${key} IS '${db_config.description.columns[key]}';`, [] );
-      
+  
+  // GRANT
+  await client.query( `REVOKE ALL ON ${db_config.namespace}.${db_config.table_name} FROM sidekick_public, sidekick_user;`);
+  if(db_config.grant_stmt)
+    await Promise.all(db_config.grant_stmt.map(sql => client.query(sql, [])));
+  
+  // ROW LEVEL SECURITY
+  await client.query(`SELECT policyname FROM pg_catalog.pg_policies WHERE schemaname = $1 AND tablename = $2`,
+                     [db_config.namespace, db_config.table_name])
+                     .then(x => x.rows.map(row => row.policyname ))
+                     .then((policy :string[]) => Promise.all(policy.map(p => client.query(`DROP POLICY IF EXISTS ${p} ON ${db_config.namespace}.${db_config.table_name};`))));
+  if(db_config.policy_stmt) {
+    await client.query(`ALTER TABLE ${db_config.table_name} ENABLE ROW LEVEL SECURITY;`, [] );
+    await Promise.all(db_config.policy_stmt.map(sql => client.query(sql, [])));
+  } else {
+    await client.query(`ALTER TABLE ${db_config.table_name} DISABLE ROW LEVEL SECURITY;`, [] );
+  }
+
   return db_config;
 }
 

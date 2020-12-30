@@ -23,7 +23,13 @@ import {init_roles} from "./roles/init";
 async function init(){
   await getClient()
   .then(client => {
-    client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
+    try {
+      client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
+    } catch (err) {
+      console.log(err); 
+    } finally {
+      client.release();
+    }
   });
 
   await getClient()

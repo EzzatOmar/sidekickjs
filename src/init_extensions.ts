@@ -14,6 +14,8 @@ import {initialize_table, sort_db_config} from "./database/init"
  */
 async function upsert_extension(client: PoolClient, extension : ExtensionConfig) {
   await client.query( `CREATE SCHEMA IF NOT EXISTS ${extension.namespace};`, [] );
+  await client.query( `GRANT USAGE ON SCHEMA ${extension.namespace} TO ${extension.roles};`)
+  console.log( `GRANT USAGE ON SCHEMA ${extension.namespace} TO ${extension.roles};`)
   
   await client.query(`
   INSERT INTO sidekick.extensions (namespace, version, url, doc,  state)
@@ -25,6 +27,7 @@ async function upsert_extension(client: PoolClient, extension : ExtensionConfig)
 
   await client.query( `SET SCHEMA '${extension.namespace}';`, [] );
   if (!!extension.create_functions) {
+    await client.query(`ALTER DEFAULT PRIVILEGES REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;`, []);
     for(let i = 0; i < extension.create_functions.length; i++) {
       await client.query( extension.create_functions[i], [] );
     }
