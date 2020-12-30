@@ -24,3 +24,7 @@ description:
     updated_at: Timestamp when the last modification has happend
     username: Text must be at least 6 characters long
     email: Text must include a single @ symbol
+grant_stmt:
+  - GRANT SELECT ON TABLE users_decoration TO sidekick_user;
+policy_stmt:
+  - CREATE POLICY select_user_decoration on users_decoration FOR select USING (id = nullif(current_setting('jwt.claims.user_id', true), '')::INTEGER);
