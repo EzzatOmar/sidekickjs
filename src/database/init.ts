@@ -10,6 +10,7 @@ import { destructure_table_name } from "../utils/conversion";
  * Creates a table in the schema namespace and runs the trigger functions 
  * @param client 
  * @param db_config 
+ * TODO: break this function down
  */
 export async function initialize_table(client: PoolClient, db_config: DBConfig): Promise<DBConfig> {
   // check if schema -> namespace exists
@@ -62,7 +63,7 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
   
   // GRANT
   await client.query(`REVOKE ALL ON ${db_config.namespace}.${db_config.table_name} FROM sidekick_public, sidekick_user;`);
-  if (db_config.grant_stmt)
+  if (!!db_config.grant_stmt)
     await Promise.all(db_config.grant_stmt.map(sql => client.query(sql, [])));
 
   // ROW LEVEL SECURITY
@@ -72,11 +73,21 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
     .then(x => x.rows.map(row => row.policyname))
     .then((policy: string[]) => Promise.all(policy.map(p => client.query(`DROP POLICY IF EXISTS ${p} ON ${db_config.namespace}.${db_config.table_name};`))));
   //// ENFORCE NEW POLICIES
-  if (db_config.policy_stmt) {
+  if (!!db_config.policy_stmt) {
     await client.query(`ALTER TABLE ${db_config.table_name} ENABLE ROW LEVEL SECURITY;`, []);
     await Promise.all(db_config.policy_stmt.map(sql => client.query(sql, [])));
   } else {
     await client.query(`ALTER TABLE ${db_config.table_name} DISABLE ROW LEVEL SECURITY;`, []);
+  }
+
+  // CREATE FUNCTIONS
+  if (!!db_config.create_functions) {
+    console.log("CREATE FUNCTION FOUND:");
+    db_config.create_functions.forEach(sql => console.log(sql));
+    for(let i = 0; i< db_config.create_functions.length; i++) {
+      await client.query(db_config.create_functions[i], []);
+    }
+
   }
   return db_config;
 }
@@ -155,9 +166,8 @@ export async function initialize_tables(client: PoolClient) {
     for(let i = 0; i < db_configs.count(); i++) {
       await initialize_table(client, db_configs.get(i) as DBConfig)
             .catch(err => console.log(`Error while initializing table 
-                                      ${(db_configs.get(i) as DBConfig).table_name}
-                                      .
-                                      ${(db_configs.get(i) as DBConfig).table_name}, ${err}`));
+                                      ${(db_configs.get(i) as DBConfig).table_name}.${(db_configs.get(i) as DBConfig).table_name},
+                                      ${err}`));
     }
 
     await client.query(`SET ROLE 'sidekick_api';`, []);

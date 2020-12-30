@@ -28,3 +28,23 @@ description:
     password_hash: Hash value 60 character in length
     password_recovery_code: An uuid which will should always be null unless a recovery has been issued
     password_recovery_code_updated_at: Timestamp when the recovery uuid was last updated
+create_functions:
+  - CREATE OR REPLACE FUNCTION sidekick.register_user_by_password(
+      blocked boolean,
+      password text
+    ) returns sidekick.users as $$
+    declare
+      new_user sidekick.users;
+    begin
+      insert into sidekick.users (blocked) values
+        (blocked)
+        returning * into new_user;
+
+      insert into sidekick_private.users_password (id, password_hash) values
+        (new_user.id, crypt(password, gen_salt('bf')));
+
+      return new_user;
+    end;
+    $$ language plpgsql strict security definer;
+    COMMENT ON FUNCTION sidekick.register_user_by_password(boolean, text) IS 'Registers a single user by password and returns a sidekick.users. First argument is a boolean telling if the user should be marked as blocked. The Secound argurmen it the password in plain text. The password will be hashed using the pg function crypt(password, gen_salt("bf"))';
+    GRANT EXECUTE ON FUNCTION sidekick.register_user_by_password TO sidekick_public;

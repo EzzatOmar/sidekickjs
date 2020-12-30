@@ -16,7 +16,8 @@ export interface DBConfig extends ConfigMap {
     }
   }
   grant_stmt?: string[],
-  policy_stmt?: string[]
+  policy_stmt?: string[],
+  create_functions?: string[]
 }
 
 export interface ExtensionConfig extends ConfigMap {

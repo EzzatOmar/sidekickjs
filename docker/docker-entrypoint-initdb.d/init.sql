@@ -16,6 +16,8 @@ COMMENT ON ROLE sidekick_user IS 'Role defines standard user which will be set w
 
 GRANT sidekick_public TO sidekick_api;
 GRANT sidekick_user TO sidekick_api;
+GRANT USAGE ON SCHEMA sidekick TO sidekick_api, sidekick_public, sidekick_user;
+
 
 SET SCHEMA 'sidekick';
 
