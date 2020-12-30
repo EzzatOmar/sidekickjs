@@ -9,6 +9,8 @@ import {query, getClient} from "./database/core";
 import {initialize_tables} from "./database/init";
 import {initialize_extensions} from "./init_extensions";
 import {init_roles} from "./roles/init";
+import {getFileFromDir} from "./utils/files";
+import {readFileSync} from "fs";
 
 /**
  * Starting Point
@@ -36,14 +38,24 @@ async function init(){
   .then(initialize_tables)
   .then(_ => console.log("Init default tables completed."));
   
-  await getClient().then(client => {
-    initialize_extensions(client)
-  }).then(_ => console.log("Init extensions completed"));
-
+  
   await getClient().then(client => {
     init_roles(client)
   }).then(_ => console.log("Init default roles completed"));
 
+  await getClient().then(async client => {
+    let sql_files = getFileFromDir('./src/database/sql', [], ".sql")
+                    .sort()
+                    .map(filename => readFileSync(filename, "utf8"));
+    for(let i = 0; i < sql_files.length; i++) {
+      await client.query(sql_files[i], []);
+    }
+    client.release();
+  });
+  
+  await getClient().then(client => {
+    initialize_extensions(client)
+  }).then(_ => console.log("Init extensions completed"));
 }
 
 init();

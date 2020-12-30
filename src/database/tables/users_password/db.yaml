@@ -9,7 +9,7 @@ create_stmt: >
     id Integer PRIMARY KEY REFERENCES sidekick.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    password_hash CHAR(60),
+    password_hash CHAR(60) NOT NULL,
     password_recovery_code UUID,
     password_recovery_code_updated_at TIMESTAMP
     );

@@ -10,7 +10,7 @@
     "watch": "npx tsc -w",
     "nodemon": "nodemon .",
     "test-watch": "mocha --recursive --watch",
-    "watch-graphql": "npx postgraphile -c postgres://sidekick_api:hanbikasdfhla45vjwA@localhost:6543/sidekick -s mysider --enhance-graphiql --allow-explain --default-role sidekick_public --watch --owner-connection postgres://sidekick_admin:psqlpw123@localhost:6543/sidekick --jwt-token-identifier sidekick.jwt --jwt-secret SECRET_FOR_JWT"
+    "watch-graphql": "npx postgraphile -c postgres://sidekick_api:hanbikasdfhla45vjwA@localhost:6543/sidekick -s mysider --enhance-graphiql --allow-explain --default-role sidekick_public --watch --owner-connection postgres://sidekick_admin:psqlpw123@localhost:6543/sidekick --jwt-token-identifier sidekick.jwt_token --jwt-secret SECRET_FOR_JWT"
   },
   "repository": {
     "type": "git",

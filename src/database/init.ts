@@ -82,12 +82,9 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
 
   // CREATE FUNCTIONS
   if (!!db_config.create_functions) {
-    console.log("CREATE FUNCTION FOUND:");
-    db_config.create_functions.forEach(sql => console.log(sql));
     for(let i = 0; i< db_config.create_functions.length; i++) {
       await client.query(db_config.create_functions[i], []);
     }
-
   }
   return db_config;
 }
