@@ -15,6 +15,8 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
   // check if schema -> namespace exists
   await client.query(`CREATE SCHEMA IF NOT EXISTS ${db_config.namespace};`, []);
   await client.query(`SET SCHEMA '${db_config.namespace}';`, []);
+  await client.query(`SET search_path TO ${db_config.namespace};`, []);
+  await client.query(`SELECT set_config('search_path', '${db_config.namespace}', false);`, []);
   await client.query(db_config.create_stmt, []);
   await Promise.all(db_config.trigger_stmt.map(sql => client.query(sql, [])));
   if (db_config.description && db_config.description?.table)
@@ -64,17 +66,18 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
     await Promise.all(db_config.grant_stmt.map(sql => client.query(sql, [])));
 
   // ROW LEVEL SECURITY
+  //// REVOKE CURRENT POLICIES
   await client.query(`SELECT policyname FROM pg_catalog.pg_policies WHERE schemaname = $1 AND tablename = $2`,
     [db_config.namespace, db_config.table_name])
     .then(x => x.rows.map(row => row.policyname))
     .then((policy: string[]) => Promise.all(policy.map(p => client.query(`DROP POLICY IF EXISTS ${p} ON ${db_config.namespace}.${db_config.table_name};`))));
+  //// ENFORCE NEW POLICIES
   if (db_config.policy_stmt) {
     await client.query(`ALTER TABLE ${db_config.table_name} ENABLE ROW LEVEL SECURITY;`, []);
     await Promise.all(db_config.policy_stmt.map(sql => client.query(sql, [])));
   } else {
     await client.query(`ALTER TABLE ${db_config.table_name} DISABLE ROW LEVEL SECURITY;`, []);
   }
-
   return db_config;
 }
 
@@ -149,15 +152,18 @@ export async function initialize_tables(client: PoolClient) {
         .map(filename => yaml_to_db_config(readFileSync(filename, "utf8")))
     );
     console.log(`Initialize table order: ${db_configs.map(x => x.table_name).toArray()}`)
-    await Promise.all(
-      db_configs.map(x =>
-        initialize_table(client, x)
-          .catch(err => console.log(`Error while initializing table ${x.table_name}, ${err}`))).toArray()
-    );
+    for(let i = 0; i < db_configs.count(); i++) {
+      await initialize_table(client, db_configs.get(i) as DBConfig)
+            .catch(err => console.log(`Error while initializing table 
+                                      ${(db_configs.get(i) as DBConfig).table_name}
+                                      .
+                                      ${(db_configs.get(i) as DBConfig).table_name}, ${err}`));
+    }
+
     await client.query(`SET ROLE 'sidekick_api';`, []);
-    await client.query('COMMIT');
+    await client.query('COMMIT;');
   } catch (e) {
-    await client.query('ROLLBACK');
+    await client.query('ROLLBACK;');
     throw e
   } finally {
     client.release();

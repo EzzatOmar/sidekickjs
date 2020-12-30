@@ -1,12 +1,12 @@
 # Table definition
-namespace: sidekick
+namespace: sidekick_private
 type: DBConfig
 table_name: users_password
 depends_on:
-  - users
+  - sidekick.users
 create_stmt: >
   CREATE TABLE IF NOT EXISTS users_password (
-    id Integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    id Integer PRIMARY KEY REFERENCES sidekick.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     password_hash CHAR(60),
