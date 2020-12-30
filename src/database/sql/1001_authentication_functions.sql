@@ -45,3 +45,13 @@ $$ language plpgsql strict security definer;
 
 comment on function sidekick.authenticate_user_by_username_password(text, text) is 'Creates a JWT token that will securely identify an user and give them certain permissions. This token expires in 2 days.';
 grant execute on function sidekick.authenticate_user_by_username_password(text, text) to sidekick_public, sidekick_user;
+
+-- FUNCTION TO GET CURRENT USER
+create or replace function sidekick.current_user() returns sidekick.users as $$
+  select *
+  from sidekick.users
+  where id = nullif(current_setting('jwt.claims.user_id', true), '')::integer
+$$ language sql stable security definer;
+
+comment on function sidekick.current_user() is 'Returns the user who was identified by our JWT.';
+grant execute on function sidekick.current_user() to sidekick_public, sidekick_user;

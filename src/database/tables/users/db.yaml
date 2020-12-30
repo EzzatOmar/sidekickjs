@@ -24,3 +24,7 @@ description:
     created_at: Timestamp when the user was created
     updated_at: Timestamp when the last modification has happend
     blocked: Boolean
+grant_stmt:
+  - GRANT SELECT ON TABLE users TO sidekick_user;
+policy_stmt:
+  - CREATE POLICY select_user on users FOR select USING (id = nullif(current_setting('jwt.claims.user_id', true), '')::INTEGER);
