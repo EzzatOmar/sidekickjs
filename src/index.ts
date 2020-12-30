@@ -21,16 +21,16 @@ import {init_roles} from "./roles/init";
  */
 
 async function init(){
-  // await getClient()
-  // .then(client => {
-  //   try {
-  //     client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
-  //   } catch (err) {
-  //     console.log(err); 
-  //   } finally {
-  //     client.release();
-  //   }
-  // });
+  await getClient()
+  .then(client => {
+    try {
+      client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
+    } catch (err) {
+      console.log(err); 
+    } finally {
+      client.release();
+    }
+  });
 
   await getClient()
   .then(initialize_tables)
@@ -40,9 +40,9 @@ async function init(){
     initialize_extensions(client)
   }).then(_ => console.log("Init extensions completed"));
 
-  // await getClient().then(client => {
-  //   init_roles(client)
-  // }).then(_ => console.log("Init default roles completed"));
+  await getClient().then(client => {
+    init_roles(client)
+  }).then(_ => console.log("Init default roles completed"));
 
 }
 
