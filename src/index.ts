@@ -3,6 +3,7 @@ dotenv.config()
 
 import Koa from "koa";
 import Router from "koa-router";
+import send from "koa-send";
 import pg from "pg";
 import { Map } from "immutable";
 import {query, getClient} from "./database/core";
@@ -13,6 +14,7 @@ import {getFileFromDir} from "./utils/files";
 import {readFileSync} from "fs";
 import { postgraphile } from "postgraphile";
 
+import {get_handler as admin_index_get} from "./admin/index"
 
 /**
  * Starting Point
@@ -67,10 +69,8 @@ const router = new Router();
 
 router.get("/", (ctx:Koa.ParameterizedContext, next) => {
   ctx.body = "HELLO";
-  
-  
 })
-getClient().then()
+router.get("/admin", admin_index_get);
 
 let sidekick_api_database_url = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 let sidekick_admin_database_url = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -106,7 +106,14 @@ getClient().then(client => {
 
 app
   .use(router.routes())
-  .use(router.allowedMethods());
+  .use(router.allowedMethods())
+  .use(async (ctx) => {
+    let static_file_path = ctx.url.match(/\/admin\/.*$/g);
+    if(!!static_file_path){
+      let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
+      await send(ctx, sub_path, {root: './public'});
+    }
+  });
   
 
 app.listen(3000);
