@@ -13,8 +13,7 @@ import {init_roles} from "./roles/init";
 import {getFileFromDir} from "./utils/files";
 import {readFileSync} from "fs";
 import { postgraphile } from "postgraphile";
-
-import {get_handler as admin_index_get} from "./admin/index"
+import {adminRouter} from "./admin/index";
 
 /**
  * Starting Point
@@ -70,7 +69,7 @@ const router = new Router();
 router.get("/", (ctx:Koa.ParameterizedContext, next) => {
   ctx.body = "HELLO";
 })
-router.get("/admin", admin_index_get);
+
 
 let sidekick_api_database_url = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 let sidekick_admin_database_url = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -102,9 +101,11 @@ getClient().then(client => {
         ownerConnectionString: sidekick_admin_database_url
       })
   )
-});
+}).catch(err => console.log(`Could not initialize graphql endpoint.`, err));
 
 app
+  .use(adminRouter.routes())
+  .use(adminRouter.allowedMethods())
   .use(router.routes())
   .use(router.allowedMethods())
   .use(async (ctx) => {
