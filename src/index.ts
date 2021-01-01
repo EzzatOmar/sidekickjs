@@ -66,7 +66,8 @@ init();
 const app = new Koa();
 const router = new Router();
 
-router.get("/", (ctx:Koa.ParameterizedContext, next) => {
+// @ts-ignore
+router.get("/", (ctx, next) => {console.log(ctx.session); next();} (ctx:Koa.ParameterizedContext, next) => {
   ctx.body = "HELLO";
 })
 
@@ -103,6 +104,13 @@ getClient().then(client => {
   )
 }).catch(err => console.log(`Could not initialize graphql endpoint.`, err));
 
+const session = require("koa-session2");
+
+app.use(session({
+    key: "SESSIONID",   //default "koa:sess"
+    path: "/admin"
+}));
+
 app
   .use(adminRouter.routes())
   .use(adminRouter.allowedMethods())
@@ -116,5 +124,4 @@ app
     }
   });
   
-
 app.listen(3000);

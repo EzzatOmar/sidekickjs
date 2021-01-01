@@ -1,15 +1,25 @@
 import Koa from "koa";
 import {render_page} from "../render";
+import { KoaAdminCtx } from "../types";
 
-export async function get_handler(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  // readFile
-  ctx.body = render_page("login", {body: {title: "Sidekick.js"}});
+/**
+ * Shows the login page if the user is not logged in as admin.
+ * If logged in then either show the dashboard or the welcome page.
+ * @param ctx Includes the session
+ * @param next 
+ */
+export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
+  if(ctx.session.isAdmin) {
+    ctx.body = render_page("backend", {body: {sidebar: {title: "Sidekick.js"}}, header: {title: "Sidekick.js"}});
+  } else {
+    ctx.body = render_page("login", {body: {title: "Sidekick.js"}});
+  }
 }
 
-export async function post_handler(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+export async function post_handler(ctx: KoaAdminCtx, next: Koa.Next) {
   let {password} : {password: string} = ctx.request.body;
-  // console.log(ctx);
   if(password === process.env.SIDEKICK_MASTER_PASSWORD) {
+    ctx.session.isAdmin = true;
     ctx.body = render_page("backend", {body: {sidebar: {title: "Sidekick.js"}}, header: {title: "Sidekick.js"}});
     
   } else {
