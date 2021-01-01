@@ -33,9 +33,17 @@ export interface DashboardView extends BackendView{
   }
 }
 
-export interface UsersView extends BackendView{
+export interface UsersOverviewView extends BackendView{
   page: {
-    users: {
+    'users.overview': {
+
+    }
+  }
+}
+
+export interface UsersAddUserView extends BackendView{
+  page: {
+    'users.add-user': {
 
     }
   }

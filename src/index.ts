@@ -116,7 +116,8 @@ app
   .use(adminRouter.allowedMethods())
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(async (ctx) => {
+  .use(async (ctx, next) => {
+    await next();
     let static_file_path = ctx.url.match(/\/admin\/.*$/g);
     if(!!static_file_path){
       let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);

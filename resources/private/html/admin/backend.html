@@ -41,9 +41,13 @@
               {{> backend.dashboard}}
             {{/page.dashboard}}
 
-            {{#page.users}}
-              {{> backend.users}}
-            {{/page.users}}
+            {{#page.users.overview}}
+              {{> backend.users.overview}}
+            {{/page.users.overview}}
+
+            {{#page.users.add-user}}
+              {{> backend.users.add-user}}
+            {{/page.users.add-user}}
 
             {{#page.routes}}
               {{> backend.routes}}

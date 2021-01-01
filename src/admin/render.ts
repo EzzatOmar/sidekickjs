@@ -1,11 +1,11 @@
 import {readFileSync} from "fs";
 import {render} from "mustache";
-import { DashboardView, UsersView, LogsView, BackgroundJobsView, RoutesView, PostgresqlView } from "./types";
+import { DashboardView, UsersOverviewView, UsersAddUserView, LogsView, BackgroundJobsView, RoutesView, PostgresqlView } from "./types";
 
 const partials = {
   header: readFileSync(`./resources/private/html/partials/header.mustache`, "utf-8"),
 };
-type ViewType = DashboardView | UsersView | LogsView | BackgroundJobsView | RoutesView | PostgresqlView;
+type ViewType = DashboardView | UsersOverviewView | UsersAddUserView | LogsView | BackgroundJobsView | RoutesView | PostgresqlView;
 
 export function render_page(page: string, view: ViewType) {
   let file = readFileSync(`./resources/private/html/admin/${page}.html`, "utf-8")
@@ -14,7 +14,8 @@ export function render_page(page: string, view: ViewType) {
       'header': readFileSync(`./resources/private/html/partials/header.mustache`, "utf-8"),
       'navigation.tabs': readFileSync(`./resources/private/html/partials/navigation/tabs.mustache`, "utf-8"),
       'backend.dashboard': readFileSync(`./resources/private/html/partials/backend/dashboard.mustache`, "utf-8"),
-      'backend.users': readFileSync(`./resources/private/html/partials/backend/users.mustache`, "utf-8"),
+      'backend.users.overview': readFileSync(`./resources/private/html/partials/backend/users/overview.mustache`, "utf-8"),
+      'backend.users.add-user': readFileSync(`./resources/private/html/partials/backend/users/add-user.mustache`, "utf-8"),
       'backend.logs': readFileSync(`./resources/private/html/partials/backend/logs.mustache`, "utf-8"),
       'backend.postgresql': readFileSync(`./resources/private/html/partials/backend/postgresql.mustache`, "utf-8"),
       'backend.routes': readFileSync(`./resources/private/html/partials/backend/routes.mustache`, "utf-8"),

@@ -21,7 +21,7 @@ export const adminRouter = new Router({ prefix: "/admin" });
 async function mw1(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let counter = !!ctx.session ? ctx.session.counter : 0;
   console.log('mw1', ctx.session);
-  next();
+  await next();
 }
 
 /**
@@ -32,10 +32,10 @@ async function mw1(ctx: Koa.ParameterizedContext, next: Koa.Next) {
 async function admin_check(ctx: KoaAdminCtx, next: Koa.Next) {
   // Dont check on /admin
   if (ctx.url === "/admin")
-    next();
+    await next();
     // TODO: remove local 
   else if (ctx.session.isAdmin || process.env.ENVIRONMENT === "local") {
-    next();
+    await next();
   } else {
     // not admin
     //TODO: RATE LIMIT?
@@ -54,7 +54,7 @@ adminRouter.use(admin_check);
   adminRouter.get("/logs", mw1, logs_get);
   adminRouter.get("/routes", mw1, routes_get);
   adminRouter.get("/users", mw1, users_get);
-  adminRouter.get("/users/overview", mw1, users_overview_get);
+  adminRouter.get("/users/overview", users_overview_get);
   adminRouter.get("/users/add-user", mw1, users_add_user_get);
   adminRouter.get("/postgresql", mw1, psql_get);
   adminRouter.get("/background_jobs", mw1, background_jobs_get);

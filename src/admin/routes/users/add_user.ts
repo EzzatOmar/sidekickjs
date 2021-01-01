@@ -14,7 +14,9 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
     ],
     },
     page: {
-      users: {}
+      users: {
+        'add-user': true
+      }
     }
   });
 }
