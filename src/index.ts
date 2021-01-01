@@ -67,7 +67,7 @@ const app = new Koa();
 const router = new Router();
 
 // @ts-ignore
-router.get("/", (ctx, next) => {console.log(ctx.session); next();} (ctx:Koa.ParameterizedContext, next) => {
+router.get("/", (ctx, next) => {console.log(ctx.session); next();}, (ctx:Koa.ParameterizedContext, next) => {
   ctx.body = "HELLO";
 })
 

@@ -10,7 +10,7 @@ import { KoaAdminCtx } from "../types";
  */
 export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
   if(ctx.session.isAdmin) {
-    ctx.body = render_page("backend", {body: {sidebar: {title: "Sidekick.js"}}, header: {title: "Sidekick.js"}});
+    ctx.response.redirect('/admin/dashboard');
   } else {
     ctx.body = render_page("login", {body: {title: "Sidekick.js"}});
   }
@@ -20,8 +20,7 @@ export async function post_handler(ctx: KoaAdminCtx, next: Koa.Next) {
   let {password} : {password: string} = ctx.request.body;
   if(password === process.env.SIDEKICK_MASTER_PASSWORD) {
     ctx.session.isAdmin = true;
-    ctx.body = render_page("backend", {body: {sidebar: {title: "Sidekick.js"}}, header: {title: "Sidekick.js"}});
-    
+    ctx.response.redirect('/admin/dashboard');
   } else {
     ctx.body = "INVALID PASSWORD";
   }

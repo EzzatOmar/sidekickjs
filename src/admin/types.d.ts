@@ -5,4 +5,8 @@ interface AdminSession {
   isAdmin?: true
 }
 
-type KoaAdminCtx = Koa.ParameterizedContext & {session: AdminSession};
+export type KoaAdminCtx = Koa.ParameterizedContext | Koa.ParameterizedContext & {session: AdminSession};
+
+export interface DashboardView {
+
+}
