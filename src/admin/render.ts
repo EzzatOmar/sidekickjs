@@ -1,11 +1,13 @@
 import {readFileSync} from "fs";
 import {render} from "mustache";
+import { DashboardView, UsersView, LogsView, BackgroundJobsView, RoutesView, PostgresqlView } from "./types";
 
 const partials = {
   header: readFileSync(`./resources/private/html/partials/header.mustache`, "utf-8"),
 };
+type ViewType = DashboardView | UsersView | LogsView | BackgroundJobsView | RoutesView | PostgresqlView;
 
-export function render_page(page: string, view: any) {
+export function render_page(page: string, view: ViewType) {
   let file = readFileSync(`./resources/private/html/admin/${page}.html`, "utf-8")
   return render(file, view, 
     {

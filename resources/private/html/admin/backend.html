@@ -34,34 +34,33 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <!-- Replace with your content -->
           <div class="py-4">
-            {{#body.page.dashboard}}
-              {{> dashboard}}
-              HELLO
-            {{/body.page.dashboard}}
+            {{#page.dashboard}}
+              {{> backend.dashboard}}
+            {{/page.dashboard}}
 
-            {{#body.page.users}}
-              {{> users}}
-            {{/body.page.users}}
+            {{#page.users}}
+              {{> backend.users}}
+            {{/page.users}}
 
-            {{#body.page.routes}}
-              {{> routes}}
-            {{/body.page.routes}}
+            {{#page.routes}}
+              {{> backend.routes}}
+            {{/page.routes}}
 
-            {{#body.page.postgres}}
-              {{> postgres}}
-            {{/body.page.postgres}}
+            {{#page.postgresql}}
+              {{> backend.postgresql}}
+            {{/page.postgresql}}
 
-            {{#body.page.background_jobs}}
-              {{> background_jobs}}
-            {{/body.page.background_jobs}}
+            {{#page.background_jobs}}
+              {{> backend.background_jobs}}
+            {{/page.background_jobs}}
 
-            {{#body.page.access_control}}
-              {{> access_control}}
-            {{/body.page.access_control}}
+            {{#page.access_control}}
+              {{> backend.access_control}}
+            {{/page.access_control}}
 
-            {{#body.page.logs}}
-              {{> logs}}
-            {{/body.page.logs}}
+            {{#page.logs}}
+              {{> backend.logs}}
+            {{/page.logs}}
 
           </div>
           <!-- /End replace -->

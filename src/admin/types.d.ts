@@ -7,6 +7,63 @@ interface AdminSession {
 
 export type KoaAdminCtx = Koa.ParameterizedContext | Koa.ParameterizedContext & {session: AdminSession};
 
-export interface DashboardView {
+interface SidebarView {
+  title: string
+}
 
+interface HeaderView {
+  title: string
+}
+
+interface BackendView {
+  sidebar: SidebarView,
+  header: HeaderView
+}
+
+export interface DashboardView extends BackendView{
+  page: {
+    dashboard: {
+
+    }
+  }
+}
+
+export interface UsersView extends BackendView{
+  page: {
+    users: {
+
+    }
+  }
+}
+
+export interface LogsView extends BackendView{
+  page: {
+    logs: {
+
+    }
+  }
+}
+
+export interface BackgroundJobsView extends BackendView{
+  page: {
+    background_jobs: {
+
+    }
+  }
+}
+
+export interface PostgresqlView extends BackendView{
+  page: {
+    postgresql: {
+
+    }
+  }
+}
+
+export interface RoutesView extends BackendView{
+  page: {
+    routes: {
+
+    }
+  }
 }
