@@ -15,9 +15,14 @@ interface HeaderView {
   title: string
 }
 
+interface NavigationView {
+  tabs: {label: string, href: string, highlight?: boolean}[]
+}
+
 interface BackendView {
   sidebar: SidebarView,
-  header: HeaderView
+  header: HeaderView,
+  navigation?: NavigationView
 }
 
 export interface DashboardView extends BackendView{

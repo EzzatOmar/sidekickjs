@@ -12,7 +12,7 @@ export function render_page(page: string, view: ViewType) {
   return render(file, view, 
     {
       'header': readFileSync(`./resources/private/html/partials/header.mustache`, "utf-8"),
-      'backend': readFileSync(`./resources/private/html/partials/backend.mustache`, "utf-8"),
+      'navigation.tabs': readFileSync(`./resources/private/html/partials/navigation/tabs.mustache`, "utf-8"),
       'backend.dashboard': readFileSync(`./resources/private/html/partials/backend/dashboard.mustache`, "utf-8"),
       'backend.users': readFileSync(`./resources/private/html/partials/backend/users.mustache`, "utf-8"),
       'backend.logs': readFileSync(`./resources/private/html/partials/backend/logs.mustache`, "utf-8"),
