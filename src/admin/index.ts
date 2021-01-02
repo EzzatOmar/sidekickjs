@@ -12,6 +12,8 @@ import { get_handler as users_overview_get, } from "./routes/users/overview";
 import { get_handler as users_add_user_get, } from "./routes/users/add_user";
 import { get_handler as routes_get, } from "./routes/routes";
 import { get_handler as background_jobs_get, } from "./routes/background_jobs";
+import { get_handler as graphql_get, } from "./routes/graphql";
+import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
 
 
@@ -58,5 +60,7 @@ adminRouter.use(admin_check);
   adminRouter.get("/users/add-user", mw1, users_add_user_get);
   adminRouter.get("/postgresql", mw1, psql_get);
   adminRouter.get("/background_jobs", mw1, background_jobs_get);
+  adminRouter.get("/graphql", mw1, graphql_get);
+  adminRouter.get("/extensions", mw1, extensions_get);
 
 }

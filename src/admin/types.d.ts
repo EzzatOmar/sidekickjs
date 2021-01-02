@@ -80,3 +80,18 @@ export interface RoutesView extends BackendView{
     }
   }
 }
+
+export interface GraphQlView extends BackendView{
+  page: {
+    graphql: {
+
+    }
+  }
+}
+export interface ExtensionsView extends BackendView{
+  page: {
+    extensions: {
+
+    }
+  }
+}
