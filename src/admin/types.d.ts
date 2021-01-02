@@ -68,7 +68,10 @@ export interface BackgroundJobsView extends BackendView{
 export interface PostgresqlView extends BackendView{
   page: {
     postgresql: {
-
+      overview?: { },
+      tables?: { },
+      types?: { },
+      functions?: { },
     }
   }
 }
