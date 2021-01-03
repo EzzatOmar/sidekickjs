@@ -55,6 +55,8 @@ export function render_page(page: string, view: ViewType) {
       'table.table_with_schema': readFileSync(`./resources/private/html/partials/table/table_with_schema.mustache`, "utf-8"),
       'buttons.primary': readFileSync(`./resources/private/html/partials/buttons/primary.mustache`, "utf-8"),
       'buttons.href_primary': readFileSync(`./resources/private/html/partials/buttons/href_primary.mustache`, "utf-8"),
+      'select_menus.with_check_on_left': readFileSync(`./resources/private/html/partials/select_menus/with_check_on_left.mustache`, "utf-8"),
+      
     }
     
     );
