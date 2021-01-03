@@ -1,39 +1,46 @@
-<div class="px-2 py-2">
-  <span class="text-gray-700">
-    All Tables by Schema
-  </span>
-</div>
-
-{{#table_data}}
-<dl class="space-y-6 divide-y divide-gray-200"
-  x-data="{ open: true }">
-  <div class="pt-6">
-    <dt class="text-lg">
-      <!-- Expand/collapse question button -->
-      <button class="text-left w-full flex justify-start items-start text-gray-400"
-              @click="open = !open">
-        <span class="font-medium text-gray-900">
-          {{table_schema}}
-        </span>
-        <span class="ml-6 h-7 flex items-center">
-          <!--
-            Heroicon name: chevron-down
-
-            Open: "-rotate-180", Closed: "rotate-0"
-          -->
-          <svg class="-rotate-180 h-6 w-6 transform" xmlns="http://www.w3.org/2000/svg" 
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"
-              :class="{ '-rotate-180': open }">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </span>
-      </button>
-    </dt>
-    <dd class="mt-2 pr-12 space-y-10" x-show="open" >
-      {{#tables}}
-        {{> table.table_with_schema.mustache}}
-      {{/tables}}
-    </dd>
+<div id="page-view">
+  <div class="px-2 py-2">
+    <span class="text-gray-700">
+      All Tables by Schema
+    </span>
+    <br />
+    <br />
+    {{#create_button}}
+      {{> buttons.href_primary }}
+    {{/create_button}}
   </div>
-<dl>
-{{/table_data}}
+
+  {{#table_data}}
+  <dl class="space-y-6 divide-y divide-gray-200"
+    x-data="{ open: true }">
+    <div class="pt-6">
+      <dt class="text-lg">
+        <!-- Expand/collapse question button -->
+        <button class="text-left w-full flex justify-start items-start text-gray-400"
+                @click="open = !open">
+          <span class="font-medium text-gray-900">
+            {{table_schema}}
+          </span>
+          <span class="ml-6 h-7 flex items-center">
+            <!--
+              Heroicon name: chevron-down
+
+              Open: "-rotate-180", Closed: "rotate-0"
+            -->
+            <svg class="-rotate-180 h-6 w-6 transform" xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"
+                :class="{ '-rotate-180': open }">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+        </button>
+      </dt>
+      <dd class="mt-2 pr-12 space-y-10" x-show="open" >
+        {{#tables}}
+          {{> table.table_with_schema}}
+        {{/tables}}
+      </dd>
+    </div>
+  <dl>
+  {{/table_data}}
+</div>

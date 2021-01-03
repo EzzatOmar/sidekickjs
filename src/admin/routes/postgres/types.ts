@@ -4,7 +4,7 @@ import {render_page} from "../../render";
 
 
 export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) { 
-  ctx.body = render_page("backend", 
+  ctx.body = render_page("admin/backend.html", 
   {
     navigation: {tabs: [
       {label: "Overview", href: "/admin/postgresql/overview", highlight: false},

@@ -12,7 +12,7 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
   if(ctx.session.isAdmin) {
     ctx.response.redirect('/admin/dashboard');
   } else {
-    ctx.body = render_page("login", {body: {title: "Sidekick.js"}});
+    ctx.body = render_page("admin/login.html", {body: {title: "Sidekick.js"}});
   }
 }
 

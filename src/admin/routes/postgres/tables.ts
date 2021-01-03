@@ -54,7 +54,7 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
     }, []);
     return [...r, {table_schema: k, tables}];
   }, []) as SchemaTables[];
-  ctx.body = render_page("backend",
+  ctx.body = render_page("admin/backend.html",
     {
       navigation: {
         tabs: [
@@ -69,6 +69,14 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
       page: {
         postgresql: {
           tables: {
+            create_button: {
+              'label': 'New Table',
+              'bg-color': 'green',
+              'aTag_attr': [
+                'data-hx-target="#page-view"',
+                'data-hx-get="/admin/postgresql/tables/create"'
+              ]
+             },
             table_data
           }
         }

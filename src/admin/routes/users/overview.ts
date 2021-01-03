@@ -30,7 +30,7 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
   try {
     let user = await get_users();
     ctx.status = 200;
-    ctx.body = render_page("backend",
+    ctx.body = render_page("admin/backend.html",
       {
         sidebar: { title: "Sidekick.js" },
         header: { title: "Sidekick.js" },
