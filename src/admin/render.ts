@@ -30,6 +30,9 @@ export function render_page(page: string, view: ViewType) {
       'sidebar.desktop': readFileSync(`./resources/private/html/partials/sidebar/desktop.mustache`, "utf-8"),
       'sidebar.mobile': readFileSync(`./resources/private/html/partials/sidebar/mobile.mustache`, "utf-8"),
       'sidebar.with_secondary_navigation': readFileSync(`./resources/private/html/partials/sidebar/with_secondary_navigation.mustache`, "utf-8"),
+      'table.table_with_schema.mustache': readFileSync(`./resources/private/html/partials/table/table_with_schema.mustache`, "utf-8"),
+
+      
     }
     
     

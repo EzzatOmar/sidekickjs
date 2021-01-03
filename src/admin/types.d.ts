@@ -65,11 +65,39 @@ export interface BackgroundJobsView extends BackendView{
   }
 }
 
+interface TableRow {
+  table_schema: string,
+  table_name: string,
+  column_name: string,
+  ordinal_position: number,
+  column_default: string,
+  is_nullable: string,
+  data_type: string,
+  is_primary_key: boolean,
+  is_foreign_key: boolean,
+  is_unique: boolean,
+  description?: string
+};
+
+export interface SchemaTables {
+    table_schema: string,
+    tables: [
+      {
+        table_name: string,
+        table_rows: TableRow[]
+      }
+    ]
+};
+
+
 export interface PostgresqlView extends BackendView{
   page: {
     postgresql: {
-      overview?: { },
-      tables?: { },
+      overview?: {
+       },
+      tables?: { 
+        table_data: SchemaTables[]
+      },
       types?: { },
       functions?: { },
     }
