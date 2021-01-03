@@ -38,3 +38,51 @@ CREATE OR REPLACE FUNCTION updated_at_trigger()
       RETURN NEW;
   END;
   $$ language 'plpgsql';
+
+
+  --- CREATE HELPER FUNCTIONS IN SIDEKICK SCHEMA
+CREATE OR REPLACE FUNCTION sidekick.get_primary_keys() 
+returns table(table_schema information_schema.sql_identifier,
+              table_name information_schema.sql_identifier,
+              column_name information_schema.sql_identifier)
+              language plpgsql STABLE as $$
+begin
+	return query
+    SELECT c.table_schema, c.table_name, c.column_name
+    FROM information_schema.key_column_usage AS c
+    LEFT JOIN information_schema.table_constraints AS t
+    ON t.constraint_name = c.constraint_name
+    WHERE  t.constraint_type = 'PRIMARY KEY';
+end;
+$$;
+
+CREATE OR REPLACE FUNCTION sidekick.get_foreign_keys() 
+returns table(table_schema information_schema.sql_identifier,
+              table_name information_schema.sql_identifier,
+              column_name information_schema.sql_identifier)
+              language plpgsql STABLE as $$
+begin
+	return query
+    SELECT c.table_schema, c.table_name, c.column_name
+    FROM information_schema.key_column_usage AS c
+    LEFT JOIN information_schema.table_constraints AS t
+    ON t.constraint_name = c.constraint_name
+    WHERE  t.constraint_type = 'FOREIGN KEY';
+end;
+$$;
+
+CREATE OR REPLACE FUNCTION sidekick.get_unique_keys() 
+returns table(table_schema information_schema.sql_identifier,
+              table_name information_schema.sql_identifier,
+              column_name information_schema.sql_identifier)
+              language plpgsql STABLE as $$
+begin
+	return query
+    SELECT c.table_schema, c.table_name, c.column_name
+    FROM information_schema.key_column_usage AS c
+    LEFT JOIN information_schema.table_constraints AS t
+    ON t.constraint_name = c.constraint_name
+    WHERE  t.constraint_type = 'UNIQUE KEY';
+end;
+$$;
+  --- END HELPER FUNCTIONS
