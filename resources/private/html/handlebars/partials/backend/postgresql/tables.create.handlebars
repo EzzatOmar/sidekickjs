@@ -34,6 +34,7 @@ CREATE TABLE
         {{/schemas}}
       </div>
     </div>
+
     <div>
       <h3 class="text-lg leading-6 font-medium text-gray-900">
         Table Name
@@ -44,6 +45,29 @@ CREATE TABLE
           {{> input_groups.with_hidden_label}}
           {{/input_group}}
         {{/table_name}}
+      </div>
+    </div>
+
+    <div x-data="{a: 'bar'}">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Columns
+      </h3>
+      <div class="flex space-x-5">
+        <div>
+          <label for="column_id" class="sr-only">Column Id</label>
+          <input type="text" name="city" id="column_id" 
+            placeholder="" value="id"
+            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+        </div>
+        <div>
+          <label for="default_value" class="sr-only">Default Value</label>
+          <input type="text" name="city" id="default_value" 
+            placeholder="" value=""
+            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+        </div>
+
+
+        {{! <span x-html="'<h1>hello man</h1>'">a</span> }}
       </div>
     </div>
   </div>

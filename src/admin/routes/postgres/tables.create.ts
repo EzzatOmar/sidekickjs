@@ -1,8 +1,9 @@
 import Koa from "koa";
 import { KoaAdminCtx, TableRow, SchemaTables } from "../../types";
-import { render_page } from "../../render";
+import { render_partial } from "../../render";
 import { getClient } from "../../../database/core";
 import { List } from "immutable";
+import Handlebars_ from "handlebars";
 
 const get_schema_stmt = `select schema_name
 from information_schema.schemata
@@ -10,6 +11,7 @@ where schema_name not ilike 'pg_%'
 and schema_name not ilike 'sidekick%'
 AND schema_name not in ('information_schema', 'postgraphile_watch');`
 
+// TODO: do not allow names with whitespace
 const restricted_table_names = [
   'query', 'mutations', 'subscriptions, node',
   'all',
@@ -91,6 +93,14 @@ const restricted_table_names = [
   'with'
 ];
 
+const adminHandlebars = Handlebars_.create();
+
+function registerHandleBarsPartials(handlebars) {
+  handlebars.registerHandleBarsPartials();
+
+}
+
+// console.log(adminHandlebars)
 
 export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
 
@@ -102,7 +112,8 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
     client.release();
     return res;
   })
-  ctx.body = render_page("partials/backend/postgresql/tables.create.mustache",
+  Handlebars_.registerPartial('sidekick.test', '{{hello}}');
+  ctx.body = render_partial("./resources/private/html/handlebars/partials/backend/postgresql/tables.create.handlebars",
     {
       schemas: {
         items: schemas,
