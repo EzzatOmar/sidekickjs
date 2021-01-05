@@ -13,31 +13,32 @@
     items: ["Item1", "Item2", ...]
     defaultItem?: "Item2"
 -->
+{{! might need $el.scrollIntoView() for larger lists}}
 
-<div class="mt-1 relative cursor-pointer" x-data="{ open: false, selected: '{{defaultItem}}', highlighted: '{{defaultItem}}', schemaList: [{{#items}}'{{.}}',{{/items}}] }"
+<div class="mt-1 relative cursor-pointer" x-data="{ open: false, selected: '{{defaultItem}}', highlighted: '{{defaultItem}}', items: [{{#items}}'{{.}}',{{/items}}] }"
     x-on:keydown.arrow-down="
     if(!highlighted) {
-      highlighted = schemaList[0];
+      highlighted = items[0];
     } else {
-      let index = schemaList.findIndex(x => x === highlighted);
-      let next = schemaList[index + 1];
+      let index = items.findIndex(x => x === highlighted);
+      let next = items[index + 1];
       if(!!next) {
         highlighted = next;
       } else {
-        highlighted = schemaList[0];
+        highlighted = items[0];
       }
     }
     "
     x-on:keydown.arrow-up="
     if(!highlighted) {
-      highlighted = schemaList[schemaList.length -1];
+      highlighted = items[items.length -1];
     } else {
-      let index = schemaList.findIndex(x => x === highlighted);
-      let next = schemaList[index - 1];
+      let index = items.findIndex(x => x === highlighted);
+      let next = items[index - 1];
       if(!!next) {
         highlighted = next;
       } else {
-        highlighted = schemaList[schemaList.length -1];
+        highlighted = items[items.length -1];
       }
     }
     "
@@ -74,8 +75,6 @@
     x-ref="itemContainer"
     @click.away="open = false; setTimeout(_ => highlighted = selected, 200);"
     x-on:keydown.escape="open = false"
-    x-on:keydown.arrow-down="if(!highlighted) highlighted = 'stars'"
-    x-on:keydown.arrow-up="alert($el)"
     x-transition:leave="transition ease-in duration-100"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0">

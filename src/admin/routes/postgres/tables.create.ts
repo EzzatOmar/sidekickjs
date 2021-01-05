@@ -100,7 +100,33 @@ function registerHandleBarsPartials(handlebars) {
 
 }
 
-// console.log(adminHandlebars)
+//NOTE: not all data types
+//      custom enums are missing
+const basicDataType = [
+  'bool',
+  'bytea	',
+  'date',
+  'float4',
+  'float8	',
+  'int',
+  'int2',
+  'int8',
+  'json',
+  'jsonb',
+  'money',
+  'serial2',
+  'serial4',
+  'serial8',
+  'text',
+  'time',
+  'timestamp',
+  'timestamptz',
+  'timetz',
+  'tsquery',
+  'tsvector',
+  'uuid',
+  'xml',
+];
 
 export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
 
@@ -112,7 +138,6 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
     client.release();
     return res;
   })
-  Handlebars_.registerPartial('sidekick.test', '{{hello}}');
   ctx.body = render_partial("./resources/private/html/handlebars/partials/backend/postgresql/tables.create.handlebars",
     {
       schemas: {
@@ -126,8 +151,22 @@ export async function get_handler(ctx: KoaAdminCtx, next: Koa.Next) {
           label: "table name",
           placeholder: "enter table name"
         }
+      },
+      columns: { 
+        dataTypes: basicDataType,
+        dataTypeDefault: "text"
       }
 
+    }
+  )
+}
+
+export async function get_column_handler(ctx: KoaAdminCtx, next: Koa.Next) {
+
+  ctx.body = render_partial("./resources/private/html/handlebars/partials/backend/postgresql/tables.create.column.handlebars",
+    {
+      dataTypes: basicDataType,
+      dataTypeDefault: "text"
     }
   )
 }

@@ -1,0 +1,58 @@
+<!--
+  This example requires Tailwind CSS v2.0+ 
+  
+  This example requires some changes to your config:
+  
+  ```
+  // tailwind.config.js
+  module.exports = {
+    // ...
+    plugins: [
+      // ...
+      require('@tailwindcss/forms'),
+    ]
+  }
+  ```
+-->
+{{!-- <link rel="stylesheet" type="text/css" href="/admin/css/tw-core.css">
+<script src="https://unpkg.com/htmx.org@1.0.2"></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script> --}}
+
+<div class="flex space-x-5" x-data=''>
+  <div>
+    <label for="column_name" class="sr-only">name</label>
+    <input type="text" name="column_name" id="column_name" placeholder="column name" value='{{column_name}}'
+      class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+  </div>
+  <div class="w-40">
+    {{> select_menus.with_check_on_left items=dataTypes defaultItem=defaultType}}
+  </div>
+
+  <div>
+    <label for="default_value" class="sr-only">Default Value</label>
+    <input type="text" name="city" id="default_value" placeholder="default value" value=""
+      class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+  </div>
+
+  <div class="flex items-center">
+    <input id="nullable" name="nullable" type="checkbox"
+      class="cursor-pointer focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+    <label for="nullable" class="ml-3 text-sm font-medium text-gray-700">Nullable</label>
+  </div>
+
+  <div class="flex items-center">
+    <input id="unique" name="unique" type="checkbox"
+      class="cursor-pointer focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+    <label for="unique" class="ml-3 text-sm font-medium text-gray-700">Unique</label>
+  </div>
+
+  <div class="flex items-center">
+
+    <button type="button"
+      class="inline-flex items-center border border-transparent rounded shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      x-on:click='$el.remove()'>
+      X
+    </button>
+  </div>
+
+</div>

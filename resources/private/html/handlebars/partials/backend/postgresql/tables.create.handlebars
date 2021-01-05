@@ -15,14 +15,12 @@
   ```
 -->
 
-        <link rel="stylesheet" type="text/css" href="/admin/css/tw-core.css">
-        <script src="https://unpkg.com/htmx.org@1.0.2"></script>
-        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<link rel="stylesheet" type="text/css" href="/admin/css/tw-core.css">
+<script src="https://unpkg.com/htmx.org@1.0.2"></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
 
 CREATE TABLE
-<form
-  class="space-y-8 divide-y divide-gray-200"
-  data-hx-post="/admin/postgresql/tables/create">
+<form class="space-y-8 divide-y divide-gray-200" data-hx-post="/admin/postgresql/tables/create">
   <div class="space-y-6">
     <div>
       <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -41,34 +39,39 @@ CREATE TABLE
       </h3>
       <div class="w-64">
         {{#table_name}}
-          {{#input_group}}
-          {{> input_groups.with_hidden_label}}
-          {{/input_group}}
+        {{#input_group}}
+        {{> input_groups.with_hidden_label}}
+        {{/input_group}}
         {{/table_name}}
       </div>
     </div>
 
+    {{#columns}}
     <div x-data="{a: 'bar'}">
-      <h3 class="text-lg leading-6 font-medium text-gray-900">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 flex item-center">
         Columns
+        <button type="button"
+          class="ml-3 inline-flex items-center border border-transparent rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-indigo-500"
+          hx-get="/admin/postgresql/tables/create/column"
+          hx-trigger="click"
+          hx-target="#table_columns"
+          hx-swap="beforeend"
+       >
+          <!-- Heroicon name: plus -->
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+            aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
       </h3>
-      <div class="flex space-x-5">
-        <div>
-          <label for="column_id" class="sr-only">Column Id</label>
-          <input type="text" name="city" id="column_id" 
-            placeholder="" value="id"
-            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-        </div>
-        <div>
-          <label for="default_value" class="sr-only">Default Value</label>
-          <input type="text" name="city" id="default_value" 
-            placeholder="" value=""
-            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-        </div>
 
-
-        {{! <span x-html="'<h1>hello man</h1>'">a</span> }}
+      <div id='table_columns'>
+        {{> backend.postgresql.tables.create.column defaultType='serial' column_name='id'}}
       </div>
     </div>
+    {{/columns}}
+
   </div>
 </form>
