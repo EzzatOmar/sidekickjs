@@ -9,7 +9,6 @@ import { Map } from "immutable";
 import {query, getClient} from "./database/core";
 import {initialize_tables} from "./database/init";
 import {initialize_extensions} from "./init_extensions";
-import {init_roles} from "./roles/init";
 import {getFileFromDir} from "./utils/files";
 import {readFileSync} from "fs";
 import { postgraphile } from "postgraphile";
