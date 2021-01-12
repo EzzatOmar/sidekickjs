@@ -76,7 +76,21 @@ app
     if(!!static_file_path){
       let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
       await send(ctx, sub_path, {root: './resources/private', maxage: 1000 * 60 * 60});
+    } else {
+      console.log(ctx.url)
+      let sub_path = ctx.url === "/" ? "/index.html" : ctx.url;
+      try {
+        await send(ctx, sub_path, {root: './resources/public/web', maxage: 1000 * 60 * 60});
+      } catch (err) {
+        if(err.code === 'ENOENT'){
+          // try again with html ending
+          await send(ctx, sub_path + '.html', {root: './resources/public/web', maxage: 1000 * 60 * 60});
+        } else {
+          console.log(err);
+        }
+      }
+
     }
   });
-  
+
 app.listen(3000);
