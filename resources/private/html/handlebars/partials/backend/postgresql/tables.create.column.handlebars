@@ -47,6 +47,12 @@
   </div>
 
   <div class="flex items-center">
+    <input id="primary_key" name="primary_key" type="checkbox" {{#primary_key}}checked{{/primary_key}}
+      class="cursor-pointer focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+    <label for="primary_key" class="ml-3 text-sm font-medium text-gray-700">Primary Key</label>
+  </div>
+
+  <div class="flex items-center">
 
     <button type="button"
       class="inline-flex items-center border border-transparent rounded shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

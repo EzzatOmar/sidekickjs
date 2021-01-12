@@ -1,5 +1,0 @@
-# Role definition
-namespace: sidekick
-type: RoleConfig
-role_name: graphql
-doc: Default role for the graphql api

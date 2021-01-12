@@ -11,6 +11,7 @@ import { destructure_table_name } from "../utils/conversion";
  * @param client 
  * @param db_config 
  * TODO: break this function down
+ * @deprecated
  */
 export async function initialize_table(client: PoolClient, db_config: DBConfig): Promise<DBConfig> {
   // check if schema -> namespace exists
@@ -96,6 +97,7 @@ export async function initialize_table(client: PoolClient, db_config: DBConfig):
  * Pure function
  * @param sorted immutable List of DBConfig
  * @param db_config must not be included in the sorted List
+ * @deprecated
  */
 export function element_depends_on_db_config(sorted: List<DBConfig>, db_config: DBConfig): number {
   let n = -1;

@@ -68,7 +68,7 @@ CREATE TABLE
       </h3>
 
       <div id='table_columns'>
-        {{> backend.postgresql.tables.create.column defaultType='serial' column_name='id'}}
+        {{> backend.postgresql.tables.create.column defaultType='serial' column_name='id' primary_key='true'}}
       </div>
     </div>
     {{/columns}}

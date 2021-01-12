@@ -18,58 +18,17 @@ import {adminRouter} from "./admin/index";
 /**
  * Starting Point
  * We expect a running postgres instance and the connection information in the .env file
- * 
- * First the database will be initialize
- *  Reading all yaml files in src/database/tabes
- * 
- * Initialize all extensions
+
  */
 
 async function init(){
-  await getClient()
-  .then(client => {
-    try {
-      client.query(`ALTER ROLE sidekick_api WITH LOGIN PASSWORD '${process.env.PGUSER_API_PW || "DEFAULT_PW"}';`, [])
-    } catch (err) {
-      console.log(err); 
-    } finally {
-      client.release();
-    }
-  });
 
-  await getClient()
-  .then(initialize_tables)
-  .then(_ => console.log("Init default tables completed."));
-  
-  
-  await getClient().then(client => {
-    init_roles(client)
-  }).then(_ => console.log("Init default roles completed"));
-
-  await getClient().then(async client => {
-    let sql_files = getFileFromDir('./src/database/sql', [], ".sql")
-                    .sort()
-                    .map(filename => readFileSync(filename, "utf8"));
-    for(let i = 0; i < sql_files.length; i++) {
-      await client.query(sql_files[i], []);
-    }
-    client.release();
-  });
-  
-  await getClient().then(client => {
-    initialize_extensions(client)
-  }).then(_ => console.log("Init extensions completed"));
 }
 
 init();
 
 const app = new Koa();
 const router = new Router();
-
-// @ts-ignore
-router.get("/", (ctx, next) => {console.log(ctx.session); next();}, (ctx:Koa.ParameterizedContext, next) => {
-  ctx.body = "HELLO";
-})
 
 
 let sidekick_api_database_url = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
