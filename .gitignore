@@ -7,6 +7,9 @@ src/extensions/
 # REPL File
 secret_repl.js
 
+# Public resources
+resources/public/
+
 # Logs
 logs
 *.log

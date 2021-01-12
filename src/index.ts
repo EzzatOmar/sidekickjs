@@ -75,7 +75,7 @@ app
     let static_file_path = ctx.url.match(/\/admin\/.*$/g);
     if(!!static_file_path){
       let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
-      await send(ctx, sub_path, {root: './resources/public', maxage: 1000 * 60 * 60});
+      await send(ctx, sub_path, {root: './resources/private', maxage: 1000 * 60 * 60});
     }
   });
   
