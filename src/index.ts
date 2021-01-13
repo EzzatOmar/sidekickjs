@@ -13,6 +13,42 @@ import {getFileFromDir} from "./utils/files";
 import {readFileSync} from "fs";
 import { postgraphile } from "postgraphile";
 import {adminRouter} from "./admin/index";
+import {run} from "graphile-worker";
+
+const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
+const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
+
+async function start_background_jobs(n: number){
+  // Run a worker to execute jobs:
+  const runner = await run({
+    connectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
+    concurrency: 5,
+    // Install signal handlers for graceful shutdown on SIGINT, SIGTERM, etc
+    noHandleSignals: false,
+    pollInterval: 1000,
+    // you can set the taskList or taskDirectory but not both
+    // taskList: {
+    //   hello: async (payload:any, helpers) => {
+    //     const { name } = payload;
+    //     // helpers.logger.info(`Hello, ${name}`);
+    //     console.log(helpers.job.id);
+    //     helpers.withPgClient(async client => {
+    //       client.query("select * from sidekick.users").then(res => {
+    //         console.log(res.rowCount, "HI", n);
+    //       })
+    //     })
+    //   },
+    //   error: async (payload, helpers) => {
+    //     helpers.logger.error(`task ${helpers.job.id} with payload ${payload} failed! Attempt nr ${helpers.job.attempts}`);
+    //     throw new Error('ERROR');
+    //   }
+    // },
+    // or:
+      taskDirectory: `${__dirname}/tasks`,
+  });
+
+  await runner.promise;
+}
 
 /**
  * Starting Point
@@ -21,21 +57,21 @@ import {adminRouter} from "./admin/index";
  */
 
 async function init(){
-
+  await start_background_jobs(1);
+  return true;
 }
 
-init();
+init().catch(x => console.log('fail', x));
+
 
 const app = new Koa();
 const router = new Router();
 
 
-let sidekick_api_database_url = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
-let sidekick_admin_database_url = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 
 app.use(
   postgraphile(
-    sidekick_api_database_url, 
+    SIDEKICK_API_CONNECTION_STRING, 
     ['sidekick'], 
     {
       graphqlRoute: "/api/graphql/v1",
@@ -52,7 +88,7 @@ app.use(
       watchPg: true,
       graphiql: true,
       enhanceGraphiql: true,
-      ownerConnectionString: sidekick_admin_database_url
+      ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING
     })
 )
 
@@ -79,11 +115,11 @@ app
       console.log(ctx.url)
       let sub_path = ctx.url === "/" ? "/index.html" : ctx.url;
       try {
-        await send(ctx, sub_path, {root: './resources/public/web', maxage: 1000 * 60 * 60});
+        await send(ctx, sub_path, {root: './custom/resources/public/web', maxage: 1000 * 60 * 60});
       } catch (err) {
         if(err.code === 'ENOENT'){
           // try again with html ending
-          await send(ctx, sub_path + '.html', {root: './resources/public/web', maxage: 1000 * 60 * 60});
+          await send(ctx, sub_path + '.html', {root: './custom/resources/public/web', maxage: 1000 * 60 * 60});
         } else {
           console.log(err);
         }

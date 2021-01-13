@@ -7,6 +7,9 @@ src/extensions/
 # REPL File
 secret_repl.js
 
+#Custom code
+custom/
+
 # Public resources
 resources/public/
 

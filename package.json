@@ -44,6 +44,7 @@
     "@tailwindcss/forms": "^0.2.1",
     "autoprefixer": "^10.1.0",
     "dotenv": "^8.2.0",
+    "graphile-worker": "^0.8.1",
     "handlebars": "^4.7.6",
     "immutable": "^4.0.0-rc.12",
     "koa": "^2.13.0",
