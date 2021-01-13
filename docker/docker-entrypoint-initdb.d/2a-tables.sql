@@ -25,6 +25,7 @@ CREATE TABLE sidekick.users_decoration (
 	updated_at timestamp with time zone NOT NULL DEFAULT now(),
 	username text,
 	email text,
+	email_verified boolean DEFAULT false,
 	CONSTRAINT users_decoration_username_check CHECK ((char_length(username) >= 3)),
 	CONSTRAINT users_decoration_email_check CHECK ((email ~* '^.+@.+\..+$'::text)),
 	CONSTRAINT users_decoration_pkey PRIMARY KEY (id),
@@ -43,6 +44,7 @@ COMMENT ON COLUMN sidekick.users_decoration.created_at IS E'Timestamp when the u
 COMMENT ON COLUMN sidekick.users_decoration.updated_at IS E'Timestamp when the last modification has happend';
 COMMENT ON COLUMN sidekick.users_decoration.username IS E'Text must be at least 6 characters long';
 COMMENT ON COLUMN sidekick.users_decoration.email IS E'Text must include a single @ symbol';
+COMMENT ON COLUMN sidekick.users_decoration.email_verified IS E'This should only be set to true after the email address was verified by an external process.';
 
 ---- CREATE sidekick.global
 CREATE TABLE sidekick.global (
