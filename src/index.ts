@@ -44,7 +44,7 @@ async function start_background_jobs(n: number){
     //   }
     // },
     // or:
-      taskDirectory: `${__dirname}/tasks`,
+      taskDirectory: `${__dirname}/../custom/tasks`,
   });
 
   await runner.promise;
