@@ -20,7 +20,6 @@ import { get_handler as graphql_get, } from "./routes/graphql";
 import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
 
-
 export const adminRouter = new Router({ prefix: "/admin" });
 
 

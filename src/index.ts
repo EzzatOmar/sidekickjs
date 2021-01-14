@@ -4,21 +4,15 @@ dotenv.config()
 import Koa from "koa";
 import Router from "koa-router";
 import send from "koa-send";
-import pg from "pg";
-import { Map } from "immutable";
-import {query, getClient} from "./database/core";
-import {initialize_tables} from "./database/init";
-import {initialize_extensions} from "./init_extensions";
-import {getFileFromDir} from "./utils/files";
-import {readFileSync} from "fs";
 import { postgraphile } from "postgraphile";
-import {adminRouter} from "./admin/index";
-import {run} from "graphile-worker";
+import { adminRouter } from "./admin/index";
+import { run } from "graphile-worker";
+import {mw_render_html} from "./render";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 
-async function start_background_jobs(n: number){
+async function start_background_jobs(n: number) {
   // Run a worker to execute jobs:
   const runner = await run({
     connectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
@@ -44,7 +38,7 @@ async function start_background_jobs(n: number){
     //   }
     // },
     // or:
-      taskDirectory: `${__dirname}/../custom/tasks`,
+    taskDirectory: `${__dirname}/../custom/tasks`,
   });
 
   await runner.promise;
@@ -56,23 +50,51 @@ async function start_background_jobs(n: number){
 
  */
 
-async function init(){
+async function init() {
   await start_background_jobs(1);
   return true;
 }
 
 init().catch(x => console.log('fail', x));
 
-
 const app = new Koa();
 const router = new Router();
 
+const session = require("koa-session2");
 
+app.use(session({
+  key: "SESSIONID",   //default "koa:sess"
+  path: "/admin"
+}));
+
+app
+  .use(adminRouter.routes())
+  .use(adminRouter.allowedMethods())
+  .use(router.routes())
+  .use(router.allowedMethods())
+  .use(mw_render_html)
+  .use(async (ctx, next) => {
+    await next();
+    let static_file_path = ctx.url.match(/\/admin\/.*$/g);
+    if (!!static_file_path) {
+      let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
+      await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
+      return;
+    } else {
+      await send(ctx, ctx.url, 
+        { 
+          root: './custom/resources/public/web',
+          maxage: 1000 * 60 * 60,
+          index: "index.html",
+          extensions: [".html"]
+        });
+    }
+  });
 
 app.use(
   postgraphile(
-    SIDEKICK_API_CONNECTION_STRING, 
-    ['sidekick'], 
+    SIDEKICK_API_CONNECTION_STRING,
+    ['sidekick'],
     {
       graphqlRoute: "/api/graphql/v1",
       graphiqlRoute: '/api/graphiql/v1',
@@ -91,41 +113,5 @@ app.use(
       ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING
     })
 )
-
-
-const session = require("koa-session2");
-
-app.use(session({
-    key: "SESSIONID",   //default "koa:sess"
-    path: "/admin"
-}));
-
-app
-  .use(adminRouter.routes())
-  .use(adminRouter.allowedMethods())
-  .use(router.routes())
-  .use(router.allowedMethods())
-  .use(async (ctx, next) => {
-    await next();
-    let static_file_path = ctx.url.match(/\/admin\/.*$/g);
-    if(!!static_file_path){
-      let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
-      await send(ctx, sub_path, {root: './resources/private', maxage: 1000 * 60 * 60});
-    } else {
-      console.log(ctx.url)
-      let sub_path = ctx.url === "/" ? "/index.html" : ctx.url;
-      try {
-        await send(ctx, sub_path, {root: './custom/resources/public/web', maxage: 1000 * 60 * 60});
-      } catch (err) {
-        if(err.code === 'ENOENT'){
-          // try again with html ending
-          await send(ctx, sub_path + '.html', {root: './custom/resources/public/web', maxage: 1000 * 60 * 60});
-        } else {
-          console.log(err);
-        }
-      }
-
-    }
-  });
 
 app.listen(3000);
