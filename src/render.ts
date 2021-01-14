@@ -5,7 +5,7 @@ import {ParameterizedContext, Next} from "koa";
 
 const CustomHandlebars = Handlebars.create();
 
-function registerCustomPartials() {
+export function registerCustomPartials() {
   return getFileFromDir('./custom/resources/public/web/partials/handlebars', [], '.handlebars')
   .map((x:string):[string, string] => {
     console.log(x)
@@ -36,11 +36,15 @@ function readStream(stream:ReadStream, encoding:BufferEncoding = "utf8"):Promise
   });
 }
 
+export function compile_handlebars(html:string, view: any){
+  return CustomHandlebars.compile(html)(view);
+}
+
 export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   await next();
   let ct = ctx.response.headers['content-type'] as string;
   if(!!ct && ctx.response.body && ct.includes('text/html')){
     let html = await readStream(ctx.response.body);
-    ctx.response.body = CustomHandlebars.compile(html)({});
+    ctx.response.body = compile_handlebars(html, {});
   }
 }

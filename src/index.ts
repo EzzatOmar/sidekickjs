@@ -7,7 +7,7 @@ import send from "koa-send";
 import { postgraphile } from "postgraphile";
 import { adminRouter } from "./admin/index";
 import { run } from "graphile-worker";
-import {mw_render_html} from "./render";
+import { mw_render_html } from "./render";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -58,7 +58,7 @@ async function init() {
 init().catch(x => console.log('fail', x));
 
 const app = new Koa();
-const router = new Router();
+
 
 const session = require("koa-session2");
 
@@ -69,9 +69,18 @@ app.use(session({
 
 app
   .use(adminRouter.routes())
-  .use(adminRouter.allowedMethods())
-  .use(router.routes())
-  .use(router.allowedMethods())
+  .use(adminRouter.allowedMethods());
+
+try {
+  let customRouter: Router<any, {}> = require("../custom/src/router");
+  app
+    .use(customRouter.routes())
+    .use(customRouter.allowedMethods());
+} catch (err) {
+  console.log(err)
+}
+
+app
   .use(mw_render_html)
   .use(async (ctx, next) => {
     await next();
@@ -81,8 +90,8 @@ app
       await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
       return;
     } else {
-      await send(ctx, ctx.url, 
-        { 
+      await send(ctx, ctx.url,
+        {
           root: './custom/resources/public/web',
           maxage: 1000 * 60 * 60,
           index: "index.html",
@@ -90,6 +99,8 @@ app
         });
     }
   });
+
+
 
 app.use(
   postgraphile(
