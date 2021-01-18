@@ -1,7 +1,7 @@
 const dotenv = require("dotenv")
 dotenv.config()
 
-import Koa from "koa";
+import Koa, { Next } from "koa";
 import Router from "koa-router";
 import send from "koa-send";
 import { postgraphile } from "postgraphile";
@@ -68,8 +68,27 @@ async function initGraphQL() {
   where schema_name not like 'pg_%' and schema_name not like 'sidekick%' 
   and schema_name not in ('information_schema', 'graphile_worker', 'postgraphile_watch');`, [])
     .then(res => res.rows.map(x => x.schema_name));
-  console.log(schemaNames);
 
+  let cookieToObject = (cookie:string): {[key:string]:string} => {
+    return cookie.split(';')
+            .map(x => x.split('=',2))
+            .reduce((r,[k,v]) => {
+              r[k.trim()] = v;
+              return r;
+            }, {}) || {};
+  };
+
+  // convert jwt cookie to Bearer Token
+  app.use(async (ctx, next) => {
+    if(ctx.request.headers.cookie){
+      let cookie = cookieToObject(ctx.request.headers.cookie);
+      if(cookie.jwt){
+        ctx.request.headers.authorization = 'Bearer ' + cookie.jwt;
+      }
+    }
+    return next();
+  });
+  
   app.use(
     postgraphile(
       SIDEKICK_API_CONNECTION_STRING,
@@ -89,7 +108,27 @@ async function initGraphQL() {
         watchPg: true,
         graphiql: true,
         enhanceGraphiql: true,
-        ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING
+        ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
+        // pgSettings: async (req) => {
+        //   console.log(req.headers.cookie);
+        //   let cookies = {};
+        //   if(req.headers.cookie) {
+        //     cookies = req.headers.cookie.split(';')
+        //     .map(x => x.split('=',2))
+        //     .reduce((r,[k,v]) => {
+        //       r[k.trim()] = v;
+        //       return r;
+        //     }, {});
+        //   }
+        //   console.log(cookies.jwt);
+        //   if(cookies.jwt) {
+        //     req.headers.authorization = 'Bearer ' + cookies.jwt;
+        //   }
+
+        //   return {
+        //     role: 'sidekick_public'
+        //   };
+        // }
       })
   )
 }
@@ -117,9 +156,9 @@ async function initWebServer() {
 }
 
 async function initApp() {
+  await initGraphQL();
   await initAdminRouter();
   await initCustomRouter();
-  await initGraphQL();
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
