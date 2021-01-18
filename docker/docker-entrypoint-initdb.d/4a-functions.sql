@@ -57,6 +57,15 @@ $$;
 ALTER FUNCTION sidekick.authenticate_user_by_username_password(text,text) OWNER TO sidekick_admin;
 COMMENT ON FUNCTION sidekick.authenticate_user_by_username_password(text,text) IS E'Creates a JWT token that will securely identify an user and give them certain permissions. This token expires in 2 days.';
 
+---- CREATE sidekick.current_user_id
+create function sidekick.current_user_id() returns integer  as $$
+  select nullif(current_setting('jwt.claims.user_id', true), '')::integer;
+$$ language sql stable security definer;
+
+ALTER FUNCTION sidekick."current_user_id"() OWNER TO sidekick_admin;
+COMMENT ON FUNCTION sidekick."current_user"() IS E'Returns the user id as int who was identified by our JWT.';
+
+
 ---- CREATE sidekick.current_user
 CREATE FUNCTION sidekick.current_user ()
 	RETURNS sidekick.users

@@ -65,6 +65,7 @@ ALTER TABLE sidekick.global
 	REFERENCES sidekick.users (id) MATCH SIMPLE
 	ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE sidekick.global OWNER TO sidekick_admin;
+ALTER TABLE sidekick.global ENABLE ROW LEVEL SECURITY;
 
 COMMENT ON TABLE sidekick.global IS E'Stores global state in the database. Value must be bool, text or int.';
 COMMENT ON COLUMN sidekick.global.id IS E'Auto incremental integer';
