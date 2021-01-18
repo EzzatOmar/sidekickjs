@@ -68,6 +68,7 @@ app.use(session({
 }));
 
 app
+  // .use(KoaBody())
   .use(adminRouter.routes())
   .use(adminRouter.allowedMethods());
 
@@ -79,28 +80,6 @@ try {
 } catch (err) {
   console.log(err)
 }
-
-app
-  .use(mw_render_html)
-  .use(async (ctx, next) => {
-    await next();
-    let static_file_path = ctx.url.match(/\/admin\/.*$/g);
-    if (!!static_file_path) {
-      let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
-      await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
-      return;
-    } else {
-      await send(ctx, ctx.url,
-        {
-          root: './custom/resources/public/web',
-          maxage: 1000 * 60 * 60,
-          index: "index.html",
-          extensions: [".html"]
-        });
-    }
-  });
-
-
 
 app.use(
   postgraphile(
@@ -124,5 +103,26 @@ app.use(
       ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING
     })
 )
+
+app
+  .use(mw_render_html)
+  .use(async (ctx, next) => {
+    await next();
+    let static_file_path = ctx.url.match(/\/admin\/.*$/g);
+    if (!!static_file_path) {
+      let sub_path = (static_file_path?.entries().next().value[1] as string).slice(6);
+      await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
+      return;
+    } else {
+      await send(ctx, ctx.url,
+        {
+          root: './custom/resources/public/web',
+          maxage: 1000 * 60 * 60,
+          index: "index.html",
+          extensions: [".html"]
+        });
+    }
+  });
+
 
 app.listen(3000);

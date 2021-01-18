@@ -19,9 +19,9 @@ import { get_handler as background_jobs_get, } from "./routes/background_jobs";
 import { get_handler as graphql_get, } from "./routes/graphql";
 import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
+const session = require("koa-session2");
 
 export const adminRouter = new Router({ prefix: "/admin" });
-
 
 async function mw1(ctx: Koa.ParameterizedContext, next: Koa.Next) {
   let counter = !!ctx.session ? ctx.session.counter : 0;
@@ -48,7 +48,10 @@ async function admin_check(ctx: KoaAdminCtx, next: Koa.Next) {
   }
 }
 
-
+adminRouter.use(session({
+  key: "SESSIONID",   //default "koa:sess"
+  path: "/admin"
+}));
 adminRouter.use(KoaBody());
 adminRouter.use(admin_check);
 
