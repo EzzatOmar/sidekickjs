@@ -73,6 +73,7 @@ async function initGraphQL() {
     return cookie.split(';')
             .map(x => x.split('=',2))
             .reduce((r,[k,v]) => {
+              // @ts-ignore
               r[k.trim()] = v;
               return r;
             }, {}) || {};
@@ -80,7 +81,7 @@ async function initGraphQL() {
 
   // convert jwt cookie to Bearer Token
   app.use(async (ctx, next) => {
-    if(ctx.request.headers.cookie){
+    if(ctx.request && ctx.request.headers && !!ctx.request.headers.cookie){
       let cookie = cookieToObject(ctx.request.headers.cookie);
       if(cookie.jwt){
         ctx.request.headers.authorization = 'Bearer ' + cookie.jwt;
@@ -156,9 +157,9 @@ async function initWebServer() {
 }
 
 async function initApp() {
-  await initGraphQL();
   await initAdminRouter();
   await initCustomRouter();
+  await initGraphQL();
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
