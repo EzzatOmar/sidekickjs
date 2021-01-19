@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:12
+    restart: unless-stopped
+    ports:
+      - 6543:5432
+    environment:
+      - POSTGRES_PASSWORD=psqlpw123
+      - POSTGRES_USER=sidekick_admin
+      - POSTGRES_DB=sidekick
+      - POSTGRES_HOST=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    logging:
+      driver: json-file
+      options:
+        max-size: "10M"
+        max-file: "10"
+    volumes:
+      - ./docker/pgdata:/var/lib/postgresql/data/pgdata
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d

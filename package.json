@@ -1,0 +1,62 @@
+{
+  "name": "sidekickjs",
+  "version": "0.0.1",
+  "description": "Modern opinionated web backend for rapid prototyping",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "echo `Error: $(grep NODE_ENV .env | cut -d '=' -f2) no test specified` && exit 1",
+    "test2": "(grep PGUSER_API_PW .env | cut -d '=' -f2 )",
+    "compile": "npx tsc",
+    "watch": "npx tsc -w",
+    "nodemon": "nodemon .",
+    "test-watch": "mocha --recursive --watch",
+    "watch-graphql": "npx postgraphile -c postgres://sidekick_api:todoChangeMe@localhost:6543/sidekick -s mysider,sidekick --enhance-graphiql --allow-explain --default-role sidekick_public --watch --owner-connection postgres://sidekick_admin:psqlpw123@localhost:6543/sidekick --jwt-token-identifier sidekick.jwt_token --jwt-secret SECRET_FOR_JWT",
+    "tw-prod": "env NODE_ENV=production npx tailwindcss build resources/public/css/tw-source.css -o resources/public/css/tw-core.css",
+    "tw": "npx tailwindcss build resources/public/css/tw-source.css -o resources/public/css/tw-core.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EzzatOmar/sidekickjs.git"
+  },
+  "keywords": [],
+  "author": "Omar Ezzat",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EzzatOmar/sidekickjs/issues"
+  },
+  "homepage": "https://github.com/EzzatOmar/sidekickjs#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/koa": "^2.11.6",
+    "@types/koa-router": "^7.4.1",
+    "@types/koa-send": "^4.1.2",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.16",
+    "@types/pg": "^7.14.7",
+    "chai": "^4.2.0",
+    "chai-immutable": "^2.1.0",
+    "fsevents": "^2.2.1",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.2.1",
+    "autoprefixer": "^10.1.0",
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "graphile-worker": "^0.8.1",
+    "handlebars": "^4.7.6",
+    "immutable": "^4.0.0-rc.12",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
+    "koa-router": "^10.0.0",
+    "koa-send": "^5.0.1",
+    "koa-session2": "^2.2.10",
+    "pg": "^8.5.1",
+    "postcss": "^8.2.2",
+    "postgraphile": "^4.10.0",
+    "tailwindcss": "^2.0.2",
+    "yaml": "^2.0.0-1"
+  }
+}
