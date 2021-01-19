@@ -63,7 +63,7 @@ create function sidekick.current_user_id() returns integer  as $$
 $$ language sql stable security definer;
 
 ALTER FUNCTION sidekick."current_user_id"() OWNER TO sidekick_admin;
-COMMENT ON FUNCTION sidekick."current_user"() IS E'Returns the user id as int who was identified by our JWT.';
+COMMENT ON FUNCTION sidekick."current_user_id"() IS E'Returns the user id as int who was identified by our JWT.';
 
 
 ---- CREATE sidekick.current_user
@@ -204,7 +204,7 @@ CREATE FUNCTION sidekick.updated_at_trigger ()
   
 $$;
 ALTER FUNCTION sidekick.updated_at_trigger() OWNER TO sidekick_admin;
-COMMENT ON FUNCTION sidekick.updated_at_trigger() IS E'Updated the update_at column with the current timestamptz.';
+COMMENT ON FUNCTION sidekick.updated_at_trigger() IS E'Updates the update_at column with the current timestamptz.';
 
 ---- CREATE sidekick_private.updated_at_trigger
 CREATE FUNCTION sidekick_private.updated_at_trigger ()
@@ -222,3 +222,4 @@ CREATE FUNCTION sidekick_private.updated_at_trigger ()
   
 $$;
 ALTER FUNCTION sidekick_private.updated_at_trigger() OWNER TO sidekick_admin;
+COMMENT ON FUNCTION sidekick_private.updated_at_trigger() IS E'Updates the update_at column with the current timestamptz.';
