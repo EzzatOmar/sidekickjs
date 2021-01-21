@@ -47,6 +47,7 @@
     "graphile-worker": "^0.8.1",
     "handlebars": "^4.7.6",
     "immutable": "^4.0.0-rc.12",
+    "isbot": "^3.0.23",
     "koa": "^2.13.0",
     "koa-body": "^4.2.0",
     "koa-router": "^10.0.0",
@@ -56,6 +57,7 @@
     "postcss": "^8.2.2",
     "postgraphile": "^4.10.0",
     "tailwindcss": "^2.0.2",
+    "ua-parser-js": "^0.7.23",
     "yaml": "^2.0.0-1"
   }
 }

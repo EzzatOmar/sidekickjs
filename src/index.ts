@@ -145,13 +145,17 @@ async function initWebServer() {
         await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
         return;
       } else {
-        await send(ctx, ctx.url,
-          {
-            root: './custom/resources/public/web',
-            maxage: 1000 * 60 * 60,
-            index: "index.html",
-            extensions: [".html"]
-          });
+        try {
+          await send(ctx, ctx.url,
+            {
+              root: './custom/resources/public/web',
+              maxage: 1000 * 60 * 60,
+              index: "index.html",
+              extensions: [".html"]
+            });
+        } catch (err) {
+          // returning nothing means 404 by default
+        }
       }
     });
 }

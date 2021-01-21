@@ -45,6 +45,7 @@ export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   let ct = ctx.response.headers['content-type'] as string;
   if(!!ct && ctx.response.body && ct.includes('text/html')){
     let html = await readStream(ctx.response.body);
+    // NOTE: handlebars vars are resolved here
     ctx.response.body = compile_handlebars(html, {});
   }
 }
