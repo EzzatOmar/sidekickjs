@@ -8,7 +8,8 @@ import { postgraphile } from "postgraphile";
 import { adminRouter } from "./admin/index";
 import { run } from "graphile-worker";
 import { mw_render_html } from "./render";
-import { query } from "./database/core";
+import { query, getClient } from "./database/core";
+import { jwtCookeToBearer } from "./middleware/cookie";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -56,6 +57,11 @@ async function initCustomRouter() {
   try {
     let customRouter: Router<any, {}> = require("../custom/src/router");
     app
+      .use(async (ctx, next)=>{
+        // include database in context
+        ctx.db = {admin: {query, getClient}};
+        await next();
+      })
       .use(customRouter.routes())
       .use(customRouter.allowedMethods());
   } catch (err) {
@@ -69,26 +75,8 @@ async function initGraphQL() {
   and schema_name not in ('information_schema', 'graphile_worker', 'postgraphile_watch');`, [])
     .then(res => res.rows.map(x => x.schema_name));
 
-  let cookieToObject = (cookie:string): {[key:string]:string} => {
-    return cookie.split(';')
-            .map(x => x.split('=',2))
-            .reduce((r,[k,v]) => {
-              // @ts-ignore
-              r[k.trim()] = v;
-              return r;
-            }, {}) || {};
-  };
-
   // convert jwt cookie to Bearer Token
-  app.use(async (ctx, next) => {
-    if(ctx.request && ctx.request.headers && !!ctx.request.headers.cookie){
-      let cookie = cookieToObject(ctx.request.headers.cookie);
-      if(cookie.jwt){
-        ctx.request.headers.authorization = 'Bearer ' + cookie.jwt;
-      }
-    }
-    return next();
-  });
+  app.use(jwtCookeToBearer);
   
   app.use(
     postgraphile(
@@ -162,8 +150,8 @@ async function initWebServer() {
 
 async function initApp() {
   await initAdminRouter();
-  await initCustomRouter();
   await initGraphQL();
+  await initCustomRouter();
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
