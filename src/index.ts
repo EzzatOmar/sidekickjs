@@ -10,6 +10,7 @@ import { run } from "graphile-worker";
 import { mw_render_html } from "./render";
 import { query, getClient } from "./database/core";
 import { jwtCookeToBearer } from "./middleware/cookie";
+import { authViaJWT } from "./middleware/access-control";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -151,6 +152,7 @@ async function initWebServer() {
 async function initApp() {
   await initAdminRouter();
   await initGraphQL();
+  app.use(authViaJWT);
   await initCustomRouter();
   await initWebServer();
   app.listen(3000);
