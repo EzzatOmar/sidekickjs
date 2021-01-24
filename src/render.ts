@@ -23,8 +23,8 @@ export function registerCustomPartials() {
     CustomHandlebars.registerPartial(partial_name, readFileSync(path, "utf-8"))
   })
 }
-
 registerCustomPartials();
+
 
 function readStream(stream:ReadStream, encoding:BufferEncoding = "utf8"):Promise<string> {
   stream.setEncoding(encoding);

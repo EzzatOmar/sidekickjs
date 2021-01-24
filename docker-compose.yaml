@@ -19,3 +19,24 @@ services:
     volumes:
       - ./docker/pgdata:/var/lib/postgresql/data/pgdata
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    networks: 
+      - sidekick_rest
+  rest:
+    image: postgrest/postgrest
+    ports:
+      - "3100:3000"
+    environment:
+      PGRST_DB_URI: postgres://sidekick_api:todoChangeMe@postgres:5432/sidekick
+      PGRST_DB_SCHEMA: simple_ab
+      PGRST_DB_ANON_ROLE: sidekick_public #In production this role should not be the same as the one used for the connection
+      PGRST_SERVER_PROXY_URI: "http://127.0.0.1:3100"
+      PGRST_JWT_SECRET: "SECRET_FOR_JWTSECRET_FOR_JWTSECRET_FOR_JWT"
+      PGRST_JWT_AUD: "postgraphile"
+    depends_on:
+      - postgres
+    networks: 
+      - sidekick_rest
+
+networks:
+  sidekick_rest:
+    external: true
