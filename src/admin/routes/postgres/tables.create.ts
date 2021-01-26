@@ -95,7 +95,7 @@ const restricted_table_names = [
 
 const adminHandlebars = Handlebars_.create();
 
-function registerHandleBarsPartials(handlebars) {
+function registerHandleBarsPartials(handlebars: any) {
   handlebars.registerHandleBarsPartials();
 
 }

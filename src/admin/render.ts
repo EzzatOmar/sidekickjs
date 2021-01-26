@@ -1,7 +1,5 @@
 import {readFileSync} from "fs";
 import Handlebars from "handlebars";
-import {  DashboardView, UsersOverviewView, UsersAddUserView, LogsView, BackgroundJobsView, 
-          RoutesView, PostgresqlView, GraphQlView, ExtensionsView} from "./types";
 import {getFileFromDir} from "../utils/files";
 
 const AdminHandlebars = Handlebars.create();
@@ -26,15 +24,13 @@ function registerAdminPartials() {
 
 registerAdminPartials();
 
-type ViewType = DashboardView | UsersOverviewView | UsersAddUserView | LogsView | BackgroundJobsView | RoutesView | PostgresqlView | GraphQlView | ExtensionsView;
-
-export function render_page(page: string, view: ViewType) {
+export function render_page(page: string, view: any) {
   registerAdminPartials();
   let file = readFileSync(`./resources/private/html/${page}`, "utf-8")
   return AdminHandlebars.compile(file)(view);    
 }
 
-export function render_partial(path: string, view: ViewType) {
+export function render_partial(path: string, view: any) {
   registerAdminPartials();
   let file = readFileSync(path, "utf-8")
   return AdminHandlebars.compile(file)(view);  
