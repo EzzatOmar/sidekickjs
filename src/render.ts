@@ -42,10 +42,12 @@ export function compile_handlebars(html:string, view: any){
 
 export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   await next();
+  console.log(ctx)
   let ct = ctx.response.headers['content-type'] as string;
-  if(!!ct && ctx.response.body && ct.includes('text/html')){
+  if((!!ct && ctx.response.body && ct.includes('text/html')) || ctx.url.endsWith(".handlebars")){
     let html = await readStream(ctx.response.body);
     // NOTE: handlebars vars are resolved here
     ctx.response.body = compile_handlebars(html, {jwt: ctx.user});
+    if(ctx.url.endsWith(".handlebars")) ctx.response.set('Content-Type', 'text/plain');
   }
 }

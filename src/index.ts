@@ -140,7 +140,7 @@ async function initWebServer() {
               root: './custom/resources/public/web',
               maxage: 1000 * 60 * 60,
               index: "index.html",
-              extensions: [".html"]
+              extensions: [".html", ".handlebars"]
             });
         } catch (err) {
           // returning nothing means 404 by default

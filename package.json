@@ -47,7 +47,6 @@
     "dotenv": "^8.2.0",
     "graphile-worker": "^0.8.1",
     "handlebars": "^4.7.6",
-    "http-proxy": "^1.18.1",
     "immutable": "^4.0.0-rc.12",
     "isbot": "^3.0.23",
     "koa": "^2.13.0",
