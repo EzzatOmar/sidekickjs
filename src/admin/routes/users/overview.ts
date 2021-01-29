@@ -5,7 +5,7 @@ import { PoolClient, } from "pg";
 import { query, getClient } from "../../../database/core";
 
 interface user { id: number, created_at: string, updated_at: string, blocked: boolean, username: string | null, email: string | null };
-const get_user_stmt = `select u.*,ud.username, ud.email from sidekick.users u inner join sidekick.users_decoration ud ON u.id = ud.id;`;
+const get_user_stmt = `select u.*,ud.username, ud.email from sidekick.users u inner join sidekick.users_decoration ud ON u.uuid = ud.uuid;`;
 async function get_users(): Promise<user[]> {
   return getClient()
     .then(async (client) => {

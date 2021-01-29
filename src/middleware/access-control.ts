@@ -23,7 +23,7 @@ export async function authViaJWT (ctx:ParameterizedContext, next:Next) {
 }
 
 export async function authorizationOnlySidekickUser (ctx:ParameterizedContext, next:Next) {
-  if(ctx.user && ctx.user.user_id && ctx.user.role === 'sidekick_user') {
+  if(ctx.user && ctx.user.user_uuid && ctx.user.role === 'sidekick_user') {
     return next();
   } else {
     ctx.status = 401;
