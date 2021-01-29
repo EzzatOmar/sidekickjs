@@ -23,7 +23,6 @@ export async function authViaJWT (ctx:ParameterizedContext, next:Next) {
 }
 
 export async function authorizationOnlySidekickUser (ctx:ParameterizedContext, next:Next) {
-  console.log(ctx.user)
   if(ctx.user && ctx.user.user_id && ctx.user.role === 'sidekick_user') {
     return next();
   } else {

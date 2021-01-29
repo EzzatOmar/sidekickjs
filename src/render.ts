@@ -8,7 +8,6 @@ const CustomHandlebars = Handlebars.create();
 export function registerCustomPartials() {
   return getFileFromDir('./custom/resources/public/web/partials/handlebars', [], '.handlebars')
   .map((x:string):[string, string] => {
-    console.log(x)
     let arr = x.split('/').splice(6);
     arr[arr.length - 1] = arr[arr.length - 1].slice(0, -11);
     let ret;
@@ -42,7 +41,6 @@ export function compile_handlebars(html:string, view: any){
 
 export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   await next();
-  console.log(ctx)
   let ct = ctx.response.headers['content-type'] as string;
   if((!!ct && ctx.response.body && ct.includes('text/html')) || ctx.url.endsWith(".handlebars")){
     let html = await readStream(ctx.response.body);
