@@ -37,7 +37,7 @@ ALTER TABLE sidekick.users_decoration OWNER TO sidekick_admin;
 ALTER TABLE sidekick.users_decoration ENABLE ROW LEVEL SECURITY;
 
 COMMENT ON TABLE sidekick.users_decoration IS E'Extends the base User Identity. Introduces username and email';
-COMMENT ON COLUMN sidekick.users_decoration.uuid IS E'Auto incremental integer';
+COMMENT ON COLUMN sidekick.users_decoration.uuid IS E'Auto generated uuid';
 COMMENT ON COLUMN sidekick.users_decoration.created_at IS E'Timestamp when the user was created';
 COMMENT ON COLUMN sidekick.users_decoration.updated_at IS E'Timestamp when the last modification has happend';
 COMMENT ON COLUMN sidekick.users_decoration.username IS E'Text must be at least 6 characters long';
@@ -66,7 +66,7 @@ ALTER TABLE sidekick.global OWNER TO sidekick_admin;
 ALTER TABLE sidekick.global ENABLE ROW LEVEL SECURITY;
 
 COMMENT ON TABLE sidekick.global IS E'Stores global state in the database. Value must be bool, text or int.';
-COMMENT ON COLUMN sidekick.global.id IS E'Auto incremental integer';
+COMMENT ON COLUMN sidekick.global.id IS E'Auto generated uuid';
 COMMENT ON COLUMN sidekick.global.created_at IS E'Timestamp when the user was created';
 COMMENT ON COLUMN sidekick.global.updated_at IS E'Timestamp when the last modification has happend';
 COMMENT ON COLUMN sidekick.global.user_uuid IS E'References pk uuid from the users table';
