@@ -9,7 +9,7 @@ grant execute on function sidekick.authenticate_user_by_username_password (usern
 
 grant usage on schema sidekick to sidekick_public, sidekick_user;
 
-grant execute on function sidekick.current_user_id() to sidekick_user, sidekick_public;
+grant execute on function sidekick.current_user_uuid() to sidekick_user, sidekick_public;
 grant execute on function sidekick.current_user() to sidekick_user;
 
 

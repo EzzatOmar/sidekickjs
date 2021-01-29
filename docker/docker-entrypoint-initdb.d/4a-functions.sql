@@ -17,11 +17,11 @@ declare
 begin
   select up.* into auth_user
   from sidekick.users_decoration ud
-  inner join sidekick_private.users_password up on ud.id = up.id
+  inner join sidekick_private.users_password up on ud.uuid = up.uuid
   where ud.email = $1 AND ud.email is not null;
 
   if auth_user.password_hash = crypt(password, auth_user.password_hash) then
-    return ('sidekick_user', auth_user.id, extract(epoch from (now() + interval '2 days')))::sidekick.jwt_token;
+    return ('sidekick_user', auth_user.uuid, extract(epoch from (now() + interval '2 days')))::sidekick.jwt_token;
   else
     return null;
   end if;
@@ -44,11 +44,11 @@ declare
 begin
   select up.* into auth_user
   from sidekick.users_decoration ud
-  inner join sidekick_private.users_password up on ud.id = up.id
+  inner join sidekick_private.users_password up on ud.uuid = up.uuid
   where ud.username = $1 AND ud.username is not null;
 
   if auth_user.password_hash = crypt(password, auth_user.password_hash) then
-    return ('sidekick_user', auth_user.id, extract(epoch from (now() + interval '2 days')))::sidekick.jwt_token;
+    return ('sidekick_user', auth_user.uuid, extract(epoch from (now() + interval '2 days')))::sidekick.jwt_token;
   else
     return null;
   end if;
@@ -57,13 +57,13 @@ $$;
 ALTER FUNCTION sidekick.authenticate_user_by_username_password(text,text) OWNER TO sidekick_admin;
 COMMENT ON FUNCTION sidekick.authenticate_user_by_username_password(text,text) IS E'Creates a JWT token that will securely identify an user and give them certain permissions. This token expires in 2 days.';
 
----- CREATE sidekick.current_user_id
-create function sidekick.current_user_id() returns integer  as $$
-  select nullif(current_setting('jwt.claims.user_id', true), '')::integer;
+---- CREATE sidekick.current_user_uuid
+create function sidekick.current_user_uuid() returns UUID  as $$
+  select nullif(current_setting('jwt.claims.user_uuid', true), '')::UUID;
 $$ language sql stable security definer;
 
-ALTER FUNCTION sidekick."current_user_id"() OWNER TO sidekick_admin;
-COMMENT ON FUNCTION sidekick."current_user_id"() IS E'Returns the user id as int who was identified by our JWT.';
+ALTER FUNCTION sidekick."current_user_uuid"() OWNER TO sidekick_admin;
+COMMENT ON FUNCTION sidekick."current_user_uuid"() IS E'Returns the user iuud as int who was identified by our JWT.';
 
 
 ---- CREATE sidekick.current_user
@@ -77,7 +77,7 @@ CREATE FUNCTION sidekick.current_user ()
 	AS $$
   select *
   from sidekick.users
-  where id = nullif(current_setting('jwt.claims.user_id', true), '')::integer
+  where uuid = nullif(current_setting('jwt.claims.user_uuid', true), '')::UUID
 $$;
 ALTER FUNCTION sidekick."current_user"() OWNER TO sidekick_admin;
 COMMENT ON FUNCTION sidekick."current_user"() IS E'Returns the user who was identified by our JWT.';
@@ -161,9 +161,9 @@ begin
   insert into sidekick.users default values
     returning * into new_user;
 
-  insert into sidekick.users_decoration(id, email) values (new_user.id, email);
+  insert into sidekick.users_decoration(id, email) values (new_user.uuid, email);
 
-  insert into sidekick_private.users_password (id, password_hash) values
+  insert into sidekick_private.users_password (uuid, password_hash) values
     (new_user.id, crypt(password, gen_salt('bf')));
 
   return new_user;
@@ -182,7 +182,7 @@ CREATE FUNCTION sidekick.register_user_by_password (blocked boolean, password te
 	COST 100
 	AS $$
  declare new_user sidekick.users; begin insert into sidekick.users (blocked) values (blocked) returning * into new_user;
-insert into sidekick_private.users_password (id, password_hash) values (new_user.id, crypt(password, gen_salt('bf')));
+insert into sidekick_private.users_password (id, password_hash) values (new_user.uuid, crypt(password, gen_salt('bf')));
 return new_user; end; 
 $$;
 ALTER FUNCTION sidekick.register_user_by_password(boolean,text) OWNER TO sidekick_admin;

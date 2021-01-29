@@ -133,7 +133,7 @@ CREATE TABLE sidekick.global (
 	id integer NOT NULL DEFAULT nextval('sidekick.global_id_seq'::regclass),
 	created_at timestamp with time zone NOT NULL DEFAULT now(),
 	updated_at timestamp with time zone NOT NULL DEFAULT now(),
-	users__id integer,
+	user_uuid UUID,
 	key text NOT NULL,
 	val_bool boolean,
 	val_text text,

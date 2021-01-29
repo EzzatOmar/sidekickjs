@@ -3,7 +3,7 @@
 CREATE TYPE sidekick.jwt_token AS
 (
   role text COLLATE pg_catalog."default",
-  user_id integer,
+  user_uuid UUID,
   exp bigint
 );
 -- ddl-end --
