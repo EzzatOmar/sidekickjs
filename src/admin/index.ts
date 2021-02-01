@@ -1,4 +1,4 @@
-import Koa from "koa";
+import Koa, {ParameterizedContext, Next} from "koa";
 import Router from "koa-router";
 import KoaBody from "koa-body";
 
@@ -20,6 +20,37 @@ import { get_handler as graphql_get, } from "./routes/graphql";
 import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
 const session = require("koa-session2");
+import { RateLimiterMemory, IRateLimiterRes } from "rate-limiter-flexible";
+
+// means that we have 5 points every 2 seconds
+const rateLimiter = new RateLimiterMemory({
+  points: 5,
+  duration: 2, // Store number for two second
+  blockDuration: 60, // Block for 1 minute
+});
+
+const rateLimitMW = async (ctx:ParameterizedContext, next:Next) => {
+  try {
+    await rateLimiter.consume(ctx.ip);
+    await next();
+  } catch (rejRes) {
+    let r: IRateLimiterRes = rejRes;
+    ctx.response.status = 429;
+    ctx.response.body = 'Too Many Requests';
+    // @ts-ignore
+    ctx.response.set('Retry-After', '' + (r.msBeforeNext | 60000) / 1000);
+  }
+}
+
+export const maxConsecutiveFailsByIP = 3;
+/**
+ * loginLimiter is used directly in the login handler
+ */
+export const loginLimiter = new RateLimiterMemory({
+  points: maxConsecutiveFailsByIP,
+  duration: 60 * 60 * 3, // Store number for three hours since first fail
+  blockDuration: 60 * 15, // Block for 15 minutes
+});
 
 export const adminRouter = new Router({ prefix: "/admin" });
 
@@ -32,12 +63,10 @@ async function admin_check(ctx: KoaAdminCtx, next: Koa.Next) {
   // Dont check on /admin
   if (ctx.url === "/admin")
     await next();
-    // TODO: remove local 
-  else if (ctx.session.isAdmin || process.env.ENVIRONMENT === "local") {
+  else if (ctx.session.isAdmin) {
     await next();
   } else {
-    // not admin
-    //TODO: RATE LIMIT?
+    // NOT AUTHORIZED, REDIRECTED TO /admin
     ctx.response.redirect("/admin");
   }
 }
@@ -47,6 +76,7 @@ adminRouter.use(session({
   path: "/admin"
 }));
 adminRouter.use(KoaBody());
+adminRouter.use(rateLimitMW);
 adminRouter.use(admin_check);
 
 {
