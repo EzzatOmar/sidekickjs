@@ -59,6 +59,7 @@
     "pg": "^8.5.1",
     "postcss": "^8.2.2",
     "postgraphile": "^4.10.0",
+    "rate-limiter-flexible": "^2.2.1",
     "tailwindcss": "^2.0.2",
     "ua-parser-js": "^0.7.23",
     "yaml": "^2.0.0-1"
