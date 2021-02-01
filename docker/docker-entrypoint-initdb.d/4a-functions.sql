@@ -188,6 +188,38 @@ $$;
 ALTER FUNCTION sidekick.register_user_by_password(boolean,text) OWNER TO sidekick_admin;
 COMMENT ON FUNCTION sidekick.register_user_by_password(boolean,text) IS E'Registers a single user by password and returns a sidekick.users. First argument is a boolean telling if the user should be marked as blocked. The Secound argurmen it the password in plain text. The password will be hashed using the pg function crypt(password, gen_salt("bf"))';
 
+---- CREATE sidekick.generate_password_reset_link_by_email
+CREATE OR REPLACE FUNCTION sidekick.generate_password_reset_link_by_email (email TEXT)
+	RETURNS UUID
+	LANGUAGE plpgsql
+	VOLATILE 
+	STRICT
+	SECURITY DEFINER
+	COST 100
+	AS $$
+DECLARE selected_password_row sidekick_private.users_password%rowtype;
+BEGIN
+  WITH p AS (
+  	SELECT up.* FROM sidekick.users_decoration ud 
+  	INNER JOIN sidekick_private.users_password up ON ud.uuid = up.uuid
+    WHERE ud.email = $1
+    LIMIT 1
+  ) UPDATE sidekick_private.users_password 
+  	SET password_recovery_code_updated_at = NOW(), password_recovery_code = uuid_generate_v4()
+    WHERE uuid = (SELECT uuid FROM P)
+		RETURNING *
+		INTO selected_password_row;
+  IF selected_password_row.uuid IS NOT NULL THEN
+    return selected_password_row.password_recovery_code.uuid;
+  ELSE
+	  	RAISE EXCEPTION USING message = 'NO USER FOUND WITH THE PROVIDED EMAIL.', detail = '404', hint = '';
+  END IF;
+END;
+$$;
+ALTER FUNCTION sidekick.generate_password_reset_link_by_email(TEXT) OWNER TO sidekick_admin;
+COMMENT ON FUNCTION sidekick.generate_password_reset_link_by_email(TEXT) IS E'Sets the password_code column in sidekick_private.users_password by email stored in sidekick.users_decoration.';
+
+
 ---- CREATE sidekick.updated_at_trigger
 CREATE FUNCTION sidekick.updated_at_trigger ()
 	RETURNS trigger
