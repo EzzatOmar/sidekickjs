@@ -23,12 +23,6 @@ const session = require("koa-session2");
 
 export const adminRouter = new Router({ prefix: "/admin" });
 
-async function mw1(ctx: Koa.ParameterizedContext, next: Koa.Next) {
-  let counter = !!ctx.session ? ctx.session.counter : 0;
-  console.log('mw1', ctx.session);
-  await next();
-}
-
 /**
  * Koa middleware which lets the request through if session cookie is valid for admin 
  * @param ctx 
@@ -56,22 +50,22 @@ adminRouter.use(KoaBody());
 adminRouter.use(admin_check);
 
 {
-  adminRouter.get("/", mw1, admin_index_get);
-  adminRouter.post("/", mw1, admin_index_post);
-  adminRouter.get("/dashboard", mw1, dashboard_get);
-  adminRouter.get("/logs", mw1, logs_get);
-  adminRouter.get("/routes", mw1, routes_get);
-  adminRouter.get("/users", mw1, users_get);
+  adminRouter.get("/", admin_index_get);
+  adminRouter.post("/", admin_index_post);
+  adminRouter.get("/dashboard", dashboard_get);
+  adminRouter.get("/logs", logs_get);
+  adminRouter.get("/routes", routes_get);
+  adminRouter.get("/users", users_get);
   adminRouter.get("/users/overview", users_overview_get);
-  adminRouter.get("/users/add-user", mw1, users_add_user_get);
-  adminRouter.get("/postgresql/overview", mw1, psql_overview_get);
-  adminRouter.get("/postgresql/tables", mw1, psql_tables_get);
-  adminRouter.get("/postgresql/tables/create", mw1, psql_tables_create_get);
-  adminRouter.get("/postgresql/tables/create/column", mw1, psql_tables_create_column_get);
-  adminRouter.get("/postgresql/functions", mw1, psql_functions_get);
-  adminRouter.get("/postgresql/types", mw1, psql_types_get);
-  adminRouter.get("/background_jobs", mw1, background_jobs_get);
-  adminRouter.get("/graphql", mw1, graphql_get);
-  adminRouter.get("/extensions", mw1, extensions_get);
+  adminRouter.get("/users/add-user", users_add_user_get);
+  adminRouter.get("/postgresql/overview", psql_overview_get);
+  adminRouter.get("/postgresql/tables", psql_tables_get);
+  adminRouter.get("/postgresql/tables/create", psql_tables_create_get);
+  adminRouter.get("/postgresql/tables/create/column", psql_tables_create_column_get);
+  adminRouter.get("/postgresql/functions", psql_functions_get);
+  adminRouter.get("/postgresql/types", psql_types_get);
+  adminRouter.get("/background_jobs", background_jobs_get);
+  adminRouter.get("/graphql", graphql_get);
+  adminRouter.get("/extensions", extensions_get);
 
 }
