@@ -1,7 +1,7 @@
 const dotenv = require("dotenv")
 dotenv.config()
 
-import Koa, { Next } from "koa";
+import Koa, { Next, ParameterizedContext } from "koa";
 import Router from "koa-router";
 import send from "koa-send";
 import { postgraphile } from "postgraphile";
@@ -150,7 +150,15 @@ async function initWebServer() {
     });
 }
 
+let customMW: ((ctx:ParameterizedContext, next:Next) => Promise<any>) | undefined;
+try {
+  customMW = require("../custom/src/middleware");
+} catch (err) {
+
+}
+
 async function initApp() {
+  if(customMW) app.use(customMW);
   await initAdminRouter();
   app.use(rateLimitMW);
   await initGraphQL();
