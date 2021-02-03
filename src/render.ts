@@ -45,7 +45,12 @@ export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   if((!!ct && ctx.response.body && ct.includes('text/html')) || ctx.url.endsWith(".handlebars")){
     let html = await readStream(ctx.response.body);
     // NOTE: handlebars vars are resolved here
-    ctx.response.body = compile_handlebars(html, {jwt: ctx.user});
+    ctx.response.body = compile_handlebars(html, {
+      jwt: ctx.user,
+      prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',
+      staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
+      local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
+    });
     if(ctx.url.endsWith(".handlebars")) ctx.response.set('Content-Type', 'text/plain');
   }
 }
