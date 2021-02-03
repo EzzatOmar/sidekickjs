@@ -12,41 +12,33 @@ import { query, getClient } from "./database/core";
 import { jwtCookeToBearer } from "./middleware/cookie";
 import { authViaJWT } from "./middleware/access-control";
 import { rateLimitMW } from "./middleware/rate-limiter";
+import { existsSync } from "fs";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const app = new Koa();
 
 async function start_background_jobs() {
-  // Run a worker to execute jobs:
-  const runner = await run({
-    connectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
-    concurrency: 5,
-    // Install signal handlers for graceful shutdown on SIGINT, SIGTERM, etc
-    noHandleSignals: false,
-    pollInterval: 1000,
-    // you can set the taskList or taskDirectory but not both
-    // taskList: {
-    //   hello: async (payload:any, helpers) => {
-    //     const { name } = payload;
-    //     // helpers.logger.info(`Hello, ${name}`);
-    //     console.log(helpers.job.id);
-    //     helpers.withPgClient(async client => {
-    //       client.query("select * from sidekick.users").then(res => {
-    //         console.log(res.rowCount, "HI", n);
-    //       })
-    //     })
-    //   },
-    //   error: async (payload, helpers) => {
-    //     helpers.logger.error(`task ${helpers.job.id} with payload ${payload} failed! Attempt nr ${helpers.job.attempts}`);
-    //     throw new Error('ERROR');
-    //   }
-    // },
-    // or:
-    taskDirectory: `${__dirname}/../custom/tasks`,
-  });
+  let taskDirectory = `${__dirname}/../../custom/dist/tasks`;
+  if (existsSync(taskDirectory)) {
+    // Run a worker to execute jobs:
+    const runner = await run({
+      connectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
+      concurrency: 5,
+      // Install signal handlers for graceful shutdown on SIGINT, SIGTERM, etc
+      noHandleSignals: false,
+      pollInterval: 1000,
+      // or:
+      // taskDirectory: `${__dirname}/../../custom/dist/tasks`,
+    });
+    await runner.promise;
 
-  await runner.promise;
+  } else {
+    console.error(`No background worker started. Task directory is missing.`)
+    return new Promise((resolve, reject) => {
+      resolve({});
+    })
+  }
 }
 
 async function initAdminRouter() {
@@ -58,16 +50,19 @@ async function initAdminRouter() {
 async function initCustomRouter() {
   try {
     let customRouter: Router<any, {}> = require("../custom/src/router");
-    app
-      .use(async (ctx, next)=>{
-        // include database in context
-        ctx.db = {admin: {query, getClient}};
-        await next();
-      })
+    app.use(async (ctx, next) => {
+      // include database in context
+      ctx.db = { admin: { query, getClient } };
+      await next();
+    })
       .use(customRouter.routes())
       .use(customRouter.allowedMethods());
   } catch (err) {
-    console.log(err)
+    if (err.code === 'MODULE_NOT_FOUND') {
+      console.error('No custom router found.')
+    } else {
+      console.error(err);
+    }
   }
 }
 
@@ -79,11 +74,11 @@ async function initGraphQL() {
 
   // convert jwt cookie to Bearer Token
   app.use(jwtCookeToBearer);
-  
+
   app.use(
     postgraphile(
       SIDEKICK_API_CONNECTION_STRING,
-      [... schemaNames, 'sidekick'],
+      [...schemaNames, 'sidekick'],
       {
         graphqlRoute: "/api/graphql/v1",
         graphiqlRoute: '/api/graphiql/v1',
@@ -120,7 +115,8 @@ async function initGraphQL() {
         //     role: 'sidekick_public'
         //   };
         // }
-      })
+      }
+    )
   )
 }
 
@@ -150,7 +146,7 @@ async function initWebServer() {
     });
 }
 
-let customMW: ((ctx:ParameterizedContext, next:Next) => Promise<any>) | undefined;
+let customMW: ((ctx: ParameterizedContext, next: Next) => Promise<any>) | undefined;
 try {
   customMW = require("../custom/src/middleware");
 } catch (err) {
@@ -158,7 +154,7 @@ try {
 }
 
 async function initApp() {
-  if(customMW) app.use(customMW);
+  if (customMW) app.use(customMW);
   await initAdminRouter();
   app.use(rateLimitMW);
   await initGraphQL();
