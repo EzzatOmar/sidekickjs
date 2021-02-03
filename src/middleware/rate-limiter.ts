@@ -17,7 +17,11 @@ export async function rateLimitMW (ctx:ParameterizedContext, next:Next) {
     ctx.response.status = 429;
     ctx.response.body = 'Too Many Requests';
     // @ts-ignore
-    ctx.response.set('Retry-After', '' + (r.msBeforeNext | 60000) / 1000);
+    ctx.response.set('Retry-After', '' + (r.msBeforeNext || 60000) / 1000);
+    ctx.response.set('X-RateLimit-Limit', '200');
+    ctx.response.set('X-RateLimit-Remaining', '' + (r.remainingPoints || 0) );
+    // @ts-ignore
+    ctx.response.set('X-RateLimit-Reset', '' + new Date(Date.now() + r.msBeforeNext || 60000));
   }
 }
 
