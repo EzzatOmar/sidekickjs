@@ -19,7 +19,7 @@ const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.en
 const app = new Koa();
 
 async function start_background_jobs() {
-  let taskDirectory = `${__dirname}/../../custom/dist/tasks`;
+  let taskDirectory = `${__dirname}/../custom/dist/tasks`;
   if (existsSync(taskDirectory)) {
     // Run a worker to execute jobs:
     const runner = await run({
@@ -29,7 +29,7 @@ async function start_background_jobs() {
       noHandleSignals: false,
       pollInterval: 1000,
       // or:
-      // taskDirectory: `${__dirname}/../../custom/dist/tasks`,
+      taskDirectory
     });
     await runner.promise;
 
@@ -47,23 +47,14 @@ async function initAdminRouter() {
     .use(adminRouter.allowedMethods());
 }
 
-async function initCustomRouter() {
-  try {
-    let customRouter: Router<any, {}> = require("../custom/src/router");
-    app.use(async (ctx, next) => {
-      // include database in context
-      ctx.db = { admin: { query, getClient } };
-      await next();
-    })
-      .use(customRouter.routes())
-      .use(customRouter.allowedMethods());
-  } catch (err) {
-    if (err.code === 'MODULE_NOT_FOUND') {
-      console.error('No custom router found.')
-    } else {
-      console.error(err);
-    }
-  }
+async function initCustomRouter(customRouter: Router<any, {}>) {
+  app.use(async (ctx, next) => {
+    // include database in context
+    ctx.db = { admin: { query, getClient } };
+    await next();
+  })
+    .use(customRouter.routes())
+    .use(customRouter.allowedMethods());
 }
 
 async function initGraphQL() {
@@ -146,23 +137,39 @@ async function initWebServer() {
     });
 }
 
-let customMW: ((ctx: ParameterizedContext, next: Next) => Promise<any>) | undefined;
-try {
-  customMW = require("../custom/src/middleware");
-} catch (err) {
+async function initApp(
+  { customRouter, customMW
 
-}
-
-async function initApp() {
+   }
+    : {
+      customRouter?: Router<any, {}>,
+      customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any>
+    }) {
   if (customMW) app.use(customMW);
+  else console.log('No custom middleware provided.')
   await initAdminRouter();
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
-  await initCustomRouter();
+  if(customRouter) await initCustomRouter(customRouter);
+  else console.log('No custom router provided.')
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
 }
 
-initApp().catch(console.error);
+let customRouter;
+try {
+  customRouter = require('../custom/dist/src/router');
+} catch(err){
+  console.log(err)
+}
+let customMW;
+try {
+  customMW = require('../custom/dist/src/middleware');
+} catch(err){
+  
+}
+initApp(
+  { customRouter, customMW}
+).catch(console.error)
