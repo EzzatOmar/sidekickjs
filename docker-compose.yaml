@@ -1,10 +1,26 @@
 version: "3.7"
 services:
+  web:
+    image: node:alpine3.12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "10"
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/sidekick
+    networks:
+      - sidekick
+    command: sh -c 'cd /sidekick && node ./dist/index.js'
+        #command: bash -c 'base64'
   postgres:
-    image: postgres:12
+    image: postgres:13-alpine
     restart: unless-stopped
     ports:
-      - 6543:5432
+      - 5432:5432
     environment:
       - POSTGRES_PASSWORD=psqlpw123
       - POSTGRES_USER=sidekick_admin
@@ -20,7 +36,7 @@ services:
       - ./docker/pgdata:/var/lib/postgresql/data/pgdata
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     networks: 
-      - sidekick_rest
+      - sidekick
   rest:
     image: postgrest/postgrest
     ports:
@@ -35,8 +51,8 @@ services:
     depends_on:
       - postgres
     networks: 
-      - sidekick_rest
+      - sidekick
 
 networks:
-  sidekick_rest:
+  sidekick:
     external: true

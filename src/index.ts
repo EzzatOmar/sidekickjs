@@ -20,6 +20,7 @@ const app = new Koa();
 
 async function start_background_jobs() {
   let taskDirectory = `${__dirname}/../custom/dist/tasks`;
+  console.log("taskDirectory", taskDirectory);
   if (existsSync(taskDirectory)) {
     // Run a worker to execute jobs:
     const runner = await run({
@@ -28,8 +29,9 @@ async function start_background_jobs() {
       // Install signal handlers for graceful shutdown on SIGINT, SIGTERM, etc
       noHandleSignals: false,
       pollInterval: 1000,
+
       // or:
-      taskDirectory
+      taskDirectory: taskDirectory
     });
     await runner.promise;
 

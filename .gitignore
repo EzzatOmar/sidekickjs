@@ -1,5 +1,5 @@
 # Postgresql
-docker/pgdata/*
+docker/pgdata*/*
 
 # Extensions
 src/extensions/
