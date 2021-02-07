@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sidekick.js</title>
+    <link rel="stylesheet" type="text/css" href="/css/tailwind.css">
+
+  </head>
+  <body>
+    Current environment: 
+    <!-- handlebar.js -->
+    {{#if prod}}PROD{{/if}}
+    {{#if staging}}STAGING{{/if}}
+    {{#if local}}LOCAL{{/if}}
+    <form class="m-5" method="post">
+      <label>Make a post request to /user</label>
+    </br>
+      <button type="submit" class="text-white bg-blue-600 rounded p-3">Submit</button>
+    </form>
+  </body>
+</html>
