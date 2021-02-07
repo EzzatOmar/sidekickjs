@@ -1,6 +1,6 @@
 # Sidekick.js
 A modern opinionated web backend for rapid prototyping.  
-Sidekick provides a routing, GraphQL, RestAPI and JWT-Authorization out of the box.
+Sidekick provides Routing, GraphQL, RestAPI and JWT-Authorization out of the box.
 
 Sidekick takes the database driven development approch.  
 The goal is to move as much business logic into the database (include authentication).  
