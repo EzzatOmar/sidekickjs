@@ -1,0 +1,17 @@
+{
+  "name": "sidekick_custom_example",
+  "version": "1.0.0",
+  "description": "Replace this with your own node project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "tw-prod": "env NODE_ENV=production npx tailwindcss build tw-source.css -o dist/pages/css/tailwind.css",
+     "tw": "env npx tailwindcss build tw-source.css -o dist/pages/css/tailwind.css"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "postcss": "^8.2.5",
+    "tailwindcss": "^2.0.2"
+  }
+}
