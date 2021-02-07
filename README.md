@@ -17,4 +17,4 @@ Sidekick works on top of other open source projects.
 - [graphile-worker](https://github.com/graphile/worker/) provides async background functions executed by Postgres
 - [Koa](https://github.com/koajs/koa/) expressive HTTP middleware framework for node.js.
 
-Sidekick is in early development. The API might might change in the future.
+Sidekick is in early development. The API might change in the future.
