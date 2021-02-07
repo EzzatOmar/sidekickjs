@@ -164,7 +164,7 @@ begin
   insert into sidekick.users_decoration(id, email) values (new_user.uuid, email);
 
   insert into sidekick_private.users_password (uuid, password_hash) values
-    (new_user.id, crypt(password, gen_salt('bf')));
+    (new_user.uuid, crypt(password, gen_salt('bf')));
 
   return new_user;
 end;
@@ -182,7 +182,7 @@ CREATE FUNCTION sidekick.register_user_by_password (blocked boolean, password te
 	COST 100
 	AS $$
  declare new_user sidekick.users; begin insert into sidekick.users (blocked) values (blocked) returning * into new_user;
-insert into sidekick_private.users_password (id, password_hash) values (new_user.uuid, crypt(password, gen_salt('bf')));
+insert into sidekick_private.users_password (uuid, password_hash) values (new_user.uuid, crypt(password, gen_salt('bf')));
 return new_user; end; 
 $$;
 ALTER FUNCTION sidekick.register_user_by_password(boolean,text) OWNER TO sidekick_admin;
