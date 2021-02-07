@@ -7,10 +7,10 @@ const CustomHandlebars = Handlebars.create();
 
 function getPartialDirectory(){
   if(existsSync("./custom/resources/public/web/partials/handlebars")) {
-    return "./custom/resources/public/web/partials/handlebars";
+    return [6, "./custom/resources/public/web/partials/handlebars"];
   }
   else if(existsSync("./custom/dist/pages")) {
-    return "./custom/dist/pages";
+    return [3, "./custom/dist/pages"];
   }
   else {
     return null;
@@ -20,10 +20,12 @@ function getPartialDirectory(){
 export function registerCustomPartials() {
   let partialDir = getPartialDirectory();
   if(partialDir) {
-    getFileFromDir('./custom/resources/public/web/partials/handlebars', [], '\.(handlebars|html|htm)')
+    // @ts-ignore
+    getFileFromDir(partialDir[1], [], '\.(handlebars|html|htm)')
     .map((x:string):[string, string] => {
-      let arr = x.split('/').splice(6);
-      arr[arr.length - 1] = arr[arr.length - 1].slice(0, -11);
+       // @ts-ignore
+      let arr = x.split('/').splice(partialDir[0]);
+      arr[arr.length - 1] = arr[arr.length - 1].split('.')[0];
       let ret;
       if(arr[arr.length - 1] === 'index') {
         ret = arr.slice(0, -1).join('.');

@@ -127,10 +127,11 @@ async function initWebServer() {
         try {
           await send(ctx, ctx.url,
             {
-              root: './custom/resources/public/web',
+              // root: './custom/resources/public/web',
+              root: './custom/dist/pages',
               maxage: 1000 * 60 * 60,
               index: "index.html",
-              extensions: [".html", ".handlebars"]
+              extensions: [".html", ".htm", ".handlebars"]
             });
         } catch (err) {
           // returning nothing means 404 by default
