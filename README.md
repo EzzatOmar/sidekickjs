@@ -3,7 +3,7 @@ A modern opinionated web backend for rapid prototyping.
 Sidekick provides Routing, GraphQL, RestAPI and JWT-Authorization out of the box.
 
 Sidekick takes the database driven development approch.  
-The goal is to move as much business logic into the database (include authentication).  
+The goal is to move as much business logic into the database (including authentication).  
 Background workers can execute async javascript code directly from the database.  
 
 HTML are executed directly as handlebars partials or been served by custom routes using Koajs.
