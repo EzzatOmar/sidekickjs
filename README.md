@@ -40,11 +40,11 @@ npm run tw-prod
 ```
 
 ```bash
-npm run cp _.env .env
+cp _.env .env
 ```
 
 ```bash
-docker-com  up -d
+docker-compose  up -d
 ```
 
 Posgres needs to finsh initialization on the first run. The web server will connect afterwards.
