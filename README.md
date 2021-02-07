@@ -13,8 +13,8 @@ Just put your custom code in ./custom/dist and your web server is ready to go.
 Sidekick works on top of other open source projects.
 - [Postrest](https://www.postgresql.org/) as the database
 - [Postgraphile](https://github.com/graphile/postgraphile) generates GraphQL from the database
-- [PostgREST] (https://github.com/PostgREST/postgrest) generates a REST-API from the database
-- [graphile-worker] (https://github.com/graphile/worker/) provides async background functions executed by Postgres
-- [Koa] (https://github.com/koajs/koa/) expressive HTTP middleware framework for node.js.
+- [PostgREST](https://github.com/PostgREST/postgrest) generates a REST-API from the database
+- [graphile-worker](https://github.com/graphile/worker/) provides async background functions executed by Postgres
+- [Koa](https://github.com/koajs/koa/) expressive HTTP middleware framework for node.js.
 
 Sidekick is in early development. The API might might change in the future.
