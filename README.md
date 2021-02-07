@@ -18,3 +18,42 @@ Sidekick works on top of other open source projects.
 - [Koa](https://github.com/koajs/koa/) expressive HTTP middleware framework for node.js.
 
 Sidekick is in early development. The API might change in the future.
+
+---
+
+## Getting Started  
+### Prerequisite  
+- Install latest node & npm
+- Install docker & docker-compose
+
+
+```bash
+npm i
+```
+
+```bash
+npm run compile
+```
+
+``` bash
+npm run tw-prod
+```
+
+```bash
+npm run cp _.env .env
+```
+
+```bash
+docker-com  up -d
+```
+
+Posgres needs to finsh initialization on the first run. The web server will connect afterwards.
+
+Now you should be ready to open [localhost:3000](http://localhost:3000/)
+
+You will find a custom project in ./custom/dist/ .
+The web pages are in pages.
+The structure in pages follows the web path structure. You can overwrite the default handler or middlware by creating a handler.js file and exporting a koa.js function as get, get_middleware, post, post_middleware ...
+
+The admin dashboard can be found with [localhost:3000/admin](https://localhost:3000/admin).
+
