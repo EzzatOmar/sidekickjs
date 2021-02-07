@@ -57,6 +57,10 @@ export function compile_handlebars(html:string, view: any){
   return CustomHandlebars.compile(html)(view);
 }
 
+export function render_html(path: string, view: any){
+  return compile_handlebars(readFileSync(path, "utf-8"), view);
+}
+
 export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   await next();
   let ct = ctx.response.headers['content-type'] as string;

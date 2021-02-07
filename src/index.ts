@@ -7,12 +7,13 @@ import send from "koa-send";
 import { postgraphile } from "postgraphile";
 import { adminRouter } from "./admin/index";
 import { run } from "graphile-worker";
-import { mw_render_html } from "./render";
+import { mw_render_html, render_html } from "./render";
 import { query, getClient } from "./database/core";
 import { jwtCookeToBearer } from "./middleware/cookie";
 import { authViaJWT } from "./middleware/access-control";
 import { rateLimitMW } from "./middleware/rate-limiter";
 import { existsSync } from "fs";
+import { getFileFromDir } from "./utils/files";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -49,10 +50,70 @@ async function initAdminRouter() {
     .use(adminRouter.allowedMethods());
 }
 
-async function initCustomRouter(customRouter: Router<any, {}>) {
+async function initCustomRouter(customRouter?: Router<any, {}>) {
+  let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
+  console.log('handlerDirs', handlerDirs)
+  if(!customRouter) {
+    customRouter = new Router();
+  }
+
+  handlerDirs.forEach(path => {
+    let handler = require('../' + path);
+    if(typeof handler.get === 'function') {
+      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+      if(typeof handler.get_mw === 'function') {
+        // @ts-ignore 
+        customRouter.get(handlerPath, handler.get_mw, handler.get);
+      } else {
+        // @ts-ignore 
+          customRouter.get(handlerPath, handler.get);
+      }
+    }
+    if(typeof handler.post === 'function') {
+      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+      if(typeof handler.post_mw === 'function') {
+        // @ts-ignore 
+        customRouter.post(handlerPath, handler.post_mw, handler.post);
+      } else {
+        // @ts-ignore 
+          customRouter.post(handlerPath, handler.post);
+      }
+    }
+    if(typeof handler.put === 'function') {
+      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+      if(typeof handler.put_mw === 'function') {
+        // @ts-ignore 
+        customRouter.put(handlerPath, handler.put_mw, handler.put);
+      } else {
+        // @ts-ignore 
+          customRouter.put(handlerPath, handler.put);
+      }
+    }
+    if(typeof handler.delete === 'function') {
+      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+      if(typeof handler.delet_mw === 'function') {
+        // @ts-ignore 
+        customRouter.delete(handlerPath, handler.delete_mw, handler.delete);
+      } else {
+        // @ts-ignore 
+          customRouter.delete(handlerPath, handler.delete);
+      }
+    }
+  })
   app.use(async (ctx, next) => {
     // include database in context
-    ctx.db = { admin: { query, getClient } };
+    // include view context
+    // include render function
+    ctx.sidekick = {
+      db: { admin: { query, getClient } },
+      view: {
+        jwt: ctx.user,
+        prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',
+        staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
+        local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
+      },
+      render: render_html
+    } 
     await next();
   })
     .use(customRouter.routes())
@@ -154,8 +215,7 @@ async function initApp(
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
-  if(customRouter) await initCustomRouter(customRouter);
-  else console.log('No custom router provided.')
+  await initCustomRouter(customRouter);
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
@@ -165,14 +225,12 @@ let customRouter;
 try {
   customRouter = require('../custom/dist/src/router');
 } catch(err){
-  console.log(err)
 }
 let customMW;
 try {
   customMW = require('../custom/dist/src/middleware');
 } catch(err){
-  
 }
 initApp(
-  { customRouter, customMW}
+  { }
 ).catch(console.error)
