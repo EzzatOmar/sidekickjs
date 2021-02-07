@@ -1,27 +1,43 @@
-import { readFileSync, ReadStream } from "fs";
+import { readFileSync, ReadStream, existsSync } from "fs";
 import Handlebars from "handlebars";
 import {getFileFromDir} from "./utils/files";
 import {ParameterizedContext, Next} from "koa";
 
 const CustomHandlebars = Handlebars.create();
 
-export function registerCustomPartials() {
-  return getFileFromDir('./custom/resources/public/web/partials/handlebars', [], '.handlebars')
-  .map((x:string):[string, string] => {
-    let arr = x.split('/').splice(6);
-    arr[arr.length - 1] = arr[arr.length - 1].slice(0, -11);
-    let ret;
-    if(arr[arr.length - 1] === 'index') {
-      ret = arr.slice(0, -1).join('.');
-    } else {
-      ret = arr.join('.');
-    }
-    return [ret, './' + x];
-  })
-  .map( ([partial_name, path]) => {
-    CustomHandlebars.registerPartial(partial_name, readFileSync(path, "utf-8"))
-  })
+function getPartialDirectory(){
+  if(existsSync("./custom/resources/public/web/partials/handlebars")) {
+    return "./custom/resources/public/web/partials/handlebars";
+  }
+  else if(existsSync("./custom/dist/pages")) {
+    return "./custom/dist/pages";
+  }
+  else {
+    return null;
+  }
 }
+
+export function registerCustomPartials() {
+  let partialDir = getPartialDirectory();
+  if(partialDir) {
+    getFileFromDir('./custom/resources/public/web/partials/handlebars', [], '\.(handlebars|html|htm)')
+    .map((x:string):[string, string] => {
+      let arr = x.split('/').splice(6);
+      arr[arr.length - 1] = arr[arr.length - 1].slice(0, -11);
+      let ret;
+      if(arr[arr.length - 1] === 'index') {
+        ret = arr.slice(0, -1).join('.');
+      } else {
+        ret = arr.join('.');
+      }
+      return [ret, './' + x];
+    })
+    .map( ([partial_name, path]) => {
+      CustomHandlebars.registerPartial(partial_name, readFileSync(path, "utf-8"))
+    });
+  }
+}
+
 registerCustomPartials();
 
 
