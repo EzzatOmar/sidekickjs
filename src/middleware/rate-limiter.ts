@@ -11,11 +11,22 @@ const rateLimiter = new RateLimiterMemory({
 export async function rateLimitMW (ctx:ParameterizedContext, next:Next) {
   try {
     await rateLimiter.consume(ctx.ip);
-    await next();
+    try{
+      await next();
+    } catch(e){
+      if((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
+        console.log(e);
+      }
+      ctx.status = 500;
+      return;
+    }
   } catch (rejRes) {
+    if((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
+      console.log(rejRes);
+    }
     let r: IRateLimiterRes = rejRes;
     ctx.response.status = 429;
-    ctx.response.body = 'Too Many Requests';
+    ctx.response.body = 'Too Many Requests abc';
     // @ts-ignore
     ctx.response.set('Retry-After', '' + (r.msBeforeNext || 60000) / 1000);
     ctx.response.set('X-RateLimit-Limit', '200');

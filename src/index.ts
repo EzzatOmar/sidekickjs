@@ -12,6 +12,7 @@ import { query, getClient } from "./database/core";
 import { jwtCookeToBearer } from "./middleware/cookie";
 import { authViaJWT } from "./middleware/access-control";
 import { rateLimitMW } from "./middleware/rate-limiter";
+import { catchException } from "./middleware/exception";
 import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
 
@@ -53,50 +54,50 @@ async function initAdminRouter() {
 async function initCustomRouter(customRouter?: Router<any, {}>) {
   let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
   console.log('handlerDirs', handlerDirs)
-  if(!customRouter) {
+  if (!customRouter) {
     customRouter = new Router();
   }
 
   handlerDirs.forEach(path => {
     let handler = require('../' + path);
-    if(typeof handler.get === 'function') {
+    if (typeof handler.get === 'function') {
       let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
-      if(typeof handler.get_mw === 'function') {
+      if (typeof handler.get_mw === 'function') {
         // @ts-ignore 
         customRouter.get(handlerPath, handler.get_mw, handler.get);
       } else {
         // @ts-ignore 
-          customRouter.get(handlerPath, handler.get);
+        customRouter.get(handlerPath, handler.get);
       }
     }
-    if(typeof handler.post === 'function') {
+    if (typeof handler.post === 'function') {
       let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
-      if(typeof handler.post_mw === 'function') {
+      if (typeof handler.post_mw === 'function') {
         // @ts-ignore 
         customRouter.post(handlerPath, handler.post_mw, handler.post);
       } else {
         // @ts-ignore 
-          customRouter.post(handlerPath, handler.post);
+        customRouter.post(handlerPath, handler.post);
       }
     }
-    if(typeof handler.put === 'function') {
+    if (typeof handler.put === 'function') {
       let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
-      if(typeof handler.put_mw === 'function') {
+      if (typeof handler.put_mw === 'function') {
         // @ts-ignore 
         customRouter.put(handlerPath, handler.put_mw, handler.put);
       } else {
         // @ts-ignore 
-          customRouter.put(handlerPath, handler.put);
+        customRouter.put(handlerPath, handler.put);
       }
     }
-    if(typeof handler.delete === 'function') {
+    if (typeof handler.delete === 'function') {
       let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
-      if(typeof handler.delet_mw === 'function') {
+      if (typeof handler.delet_mw === 'function') {
         // @ts-ignore 
         customRouter.delete(handlerPath, handler.delete_mw, handler.delete);
       } else {
         // @ts-ignore 
-          customRouter.delete(handlerPath, handler.delete);
+        customRouter.delete(handlerPath, handler.delete);
       }
     }
   })
@@ -113,7 +114,7 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
         local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
       },
       render: render_html
-    } 
+    }
     await next();
   })
     .use(customRouter.routes())
@@ -204,7 +205,7 @@ async function initWebServer() {
 async function initApp(
   { customRouter, customMW
 
-   }
+  }
     : {
       customRouter?: Router<any, {}>,
       customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any>
@@ -212,6 +213,7 @@ async function initApp(
   if (customMW) app.use(customMW);
   else console.log('No custom middleware provided.')
   await initAdminRouter();
+  app.use(catchException);
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
@@ -224,13 +226,13 @@ async function initApp(
 let customRouter;
 try {
   customRouter = require('../custom/dist/src/router');
-} catch(err){
+} catch (err) {
 }
 let customMW;
 try {
   customMW = require('../custom/dist/src/middleware');
-} catch(err){
+} catch (err) {
 }
 initApp(
-  { }
+  {}
 ).catch(console.error)
