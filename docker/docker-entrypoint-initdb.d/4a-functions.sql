@@ -161,7 +161,7 @@ begin
   insert into sidekick.users default values
     returning * into new_user;
 
-  insert into sidekick.users_decoration(id, email) values (new_user.uuid, email);
+  insert into sidekick.users_decoration(uuid, email) values (new_user.uuid, email);
 
   insert into sidekick_private.users_password (uuid, password_hash) values
     (new_user.uuid, crypt(password, gen_salt('bf')));
