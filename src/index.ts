@@ -202,14 +202,7 @@ async function initWebServer() {
     });
 }
 
-async function initApp(
-  { customRouter, customMW
-
-  }
-    : {
-      customRouter?: Router<any, {}>,
-      customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any>
-    }) {
+async function initApp( { customRouter, customMW } : { customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any> }) {
   if (customMW) app.use(customMW);
   else console.log('No custom middleware provided.')
   await initAdminRouter();
@@ -225,14 +218,15 @@ async function initApp(
 
 let customRouter;
 try {
-  customRouter = require('../custom/dist/src/router');
+  customRouter = require('../custom/dist/index').router;
 } catch (err) {
+  console.log(err)
 }
 let customMW;
 try {
-  customMW = require('../custom/dist/src/middleware');
+  customMW = require('../custom/dist/index').middleware;
 } catch (err) {
 }
 initApp(
-  {}
+  {customRouter, customMW}
 ).catch(console.error)
