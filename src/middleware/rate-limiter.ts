@@ -26,7 +26,7 @@ export async function rateLimitMW (ctx:ParameterizedContext, next:Next) {
     }
     let r: IRateLimiterRes = rejRes;
     ctx.response.status = 429;
-    ctx.response.body = 'Too Many Requests abc';
+    ctx.response.body = 'Too Many Requests';
     // @ts-ignore
     ctx.response.set('Retry-After', '' + (r.msBeforeNext || 60000) / 1000);
     ctx.response.set('X-RateLimit-Limit', '200');

@@ -15,6 +15,7 @@ import { rateLimitMW } from "./middleware/rate-limiter";
 import { catchException } from "./middleware/exception";
 import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
+import { genJWT } from "./utils/jwt";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -113,7 +114,8 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
         staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
         local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
       },
-      render: render_html
+      render: render_html,
+      genJWT
     }
     await next();
   })
