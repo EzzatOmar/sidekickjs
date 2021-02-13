@@ -112,7 +112,9 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
         jwt: ctx.user,
         prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',
         staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
-        local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
+        local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local',
+        protocol: process.env.DOMAIN === 'localhost' ? 'http://' : 'https://',
+        domain: `${process.env.DOMAIN}${process.env.DOMAIN === 'localhost' ? ':' + process.env.WEB_PORT : ''}`
       },
       render: render_html,
       genJWT
@@ -136,45 +138,68 @@ async function initGraphQL() {
     postgraphile(
       SIDEKICK_API_CONNECTION_STRING,
       [...schemaNames, 'sidekick'],
-      {
-        graphqlRoute: "/api/graphql/v1",
-        graphiqlRoute: '/api/graphiql/v1',
-        eventStreamRoute: "/api/graphql/event/v1",
-        subscriptions: true,
-        retryOnInitFail: true,
-        dynamicJson: true,
-        setofFunctionsContainNulls: false,
-        pgDefaultRole: "sidekick_public",
-        jwtSecret: process.env.JWT_SECRET,
-        jwtPgTypeIdentifier: "sidekick.jwt_token",
-        // dev
-        watchPg: true,
-        graphiql: true,
-        enhanceGraphiql: true,
-        ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
-        // pgSettings: async (req) => {
-        //   console.log(req.headers.cookie);
-        //   let cookies = {};
-        //   if(req.headers.cookie) {
-        //     cookies = req.headers.cookie.split(';')
-        //     .map(x => x.split('=',2))
-        //     .reduce((r,[k,v]) => {
-        //       r[k.trim()] = v;
-        //       return r;
-        //     }, {});
-        //   }
-        //   console.log(cookies.jwt);
-        //   if(cookies.jwt) {
-        //     req.headers.authorization = 'Bearer ' + cookies.jwt;
-        //   }
-
-        //   return {
-        //     role: 'sidekick_public'
-        //   };
-        // }
-      }
+      Object.assign(
+        {
+          graphqlRoute: "/api/graphql/v1",
+          eventStreamRoute: "/api/graphql/event/v1",
+          subscriptions: true,
+          retryOnInitFail: true,
+          dynamicJson: true,
+          setofFunctionsContainNulls: false,
+          pgDefaultRole: "sidekick_public",
+          jwtSecret: process.env.JWT_SECRET,
+          jwtPgTypeIdentifier: "sidekick.jwt_token",
+        },
+        (process.env.ENVIRONMENT as string).toLowerCase() !== 'prod' ?
+          {}
+          :
+          {
+            graphiqlRoute: '/api/graphiql/v1',
+            watchPg: true,
+            graphiql: true,
+            enhanceGraphiql: true,
+            ownerConnectionString: SIDEKICK_ADMIN_CONNECTION_STRING,
+          }
+      )
     )
   )
+}
+
+
+/**
+ * Usually HTML and Partials goes here. 1h TTL
+ * No javascript will be served to protect backend code.
+ * @param ctx 
+ */
+async function serveFromPages(ctx: ParameterizedContext) {
+  try {
+    if (ctx.url.endsWith('.js')) {
+      throw new Error("Javascript not allowed.");
+    }
+    return send(ctx, ctx.url,
+      {
+        root: './custom/dist/pages',
+        maxage: 1000 * 60 * 60,
+        index: "index.html",
+        extensions: [".html", ".htm", ".handlebars"]
+      });
+  } catch (err) {
+    throw Error(err);
+  }
+}
+
+/**
+ * Usually immutable data, including images, scripts, videos goes here.
+ * 30 days TTL
+ */
+async function serveFromAssets(ctx: ParameterizedContext) {
+  return send(ctx, ctx.url,
+    {
+      root: './custom/dist/assets',
+      maxage: 30 * 24 * 60 * 60,
+      index: "index.html",
+      extensions: [".html", ".htm"]
+    });
 }
 
 async function initWebServer() {
@@ -188,23 +213,20 @@ async function initWebServer() {
         await send(ctx, sub_path, { root: './resources/private', maxage: 1000 * 60 * 60 });
         return;
       } else {
-        try {
-          await send(ctx, ctx.url,
-            {
-              // root: './custom/resources/public/web',
-              root: './custom/dist/pages',
-              maxage: 1000 * 60 * 60,
-              index: "index.html",
-              extensions: [".html", ".htm", ".handlebars"]
-            });
-        } catch (err) {
-          // returning nothing means 404 by default
-        }
+        await serveFromPages(ctx)
+          .catch(async err => {
+            await serveFromAssets(ctx);
+          })
+          .catch(err => {
+            console.log(err)
+            ctx.status = 404;
+            return;
+          });
       }
     });
 }
 
-async function initApp( { customRouter, customMW } : { customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any> }) {
+async function initApp({ customRouter, customMW }: { customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any> }) {
   if (customMW) app.use(customMW);
   else console.log('No custom middleware provided.')
   await initAdminRouter();
@@ -230,5 +252,5 @@ try {
 } catch (err) {
 }
 initApp(
-  {customRouter, customMW}
+  { customRouter, customMW }
 ).catch(console.error)
