@@ -218,7 +218,6 @@ async function initWebServer() {
             await serveFromAssets(ctx);
           })
           .catch(err => {
-            console.log(err)
             ctx.status = 404;
             return;
           });
