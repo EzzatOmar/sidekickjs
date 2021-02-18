@@ -57,7 +57,7 @@ export function compile_handlebars(html:string, view: any){
   return CustomHandlebars.compile(html)(view);
 }
 
-export function render_html(path: string, view: any){
+export function render_html(path: string, view: any):string{
   return compile_handlebars(readFileSync(path, "utf-8"), view);
 }
 
