@@ -5,7 +5,7 @@ type Query = (text: string, params: any) => Promise<QueryResult>;
 type ClientFn = () => Promise<PoolClient & { lastQuery?: any[] }>;
 
 
-export interface CustonParameterizedContext extends ParameterizedContext {
+export interface CustomParameterizedContext extends ParameterizedContext {
   db: {
     admin: {
       query: Query,
