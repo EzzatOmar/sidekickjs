@@ -6,26 +6,28 @@ type ClientFn = () => Promise<PoolClient & { lastQuery?: any[] }>;
 
 
 export interface CustomParameterizedContext extends ParameterizedContext {
-  db: {
-    admin: {
-      query: Query,
-      getClient: ClientFn,
-    }
-  },
-  view: {
-    jwt?: {
-      user_uuid: string,
-      role: string,
-      exp: number,
-      aud: string,
-      iat: number
+  sidekick: {
+    db: {
+      admin: {
+        query: Query,
+        getClient: ClientFn,
+      }
     },
-    prod: boolean,
-    staging: boolean,
-    local: boolean,
-    protocol: string,
-    domain: string
-  },
-  render: (path: string, view: any) => string,
-  genJWT: (user_uuid: string, role: string, exp?: number, payload?: any) => string
+    view: {
+      jwt?: {
+        user_uuid: string,
+        role: string,
+        exp: number,
+        aud: string,
+        iat: number
+      },
+      prod: boolean,
+      staging: boolean,
+      local: boolean,
+      protocol: string,
+      domain: string
+    },
+    render: (path: string, view: any) => string,
+    genJWT: (user_uuid: string, role: string, exp?: number, payload?: any) => string
+  }
 }
