@@ -52,6 +52,52 @@ async function initAdminRouter() {
     .use(adminRouter.allowedMethods());
 }
 
+async function initCustomAdminRouter() {
+  let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
+  let adminCustomRouter = new Router();
+  handlerDirs.forEach(path => {
+    let handler = require('../' + path);
+    let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
+    console.log(handlerPath);
+    if (typeof handler.get === 'function') {
+      if (typeof handler.get_mw === 'function') {
+        // @ts-ignore 
+        adminCustomRouter.get(handlerPath, handler.get_mw, handler.get);
+      } else {
+        // @ts-ignore 
+        adminCustomRouter.get(handlerPath, handler.get);
+      }
+    }
+    if (typeof handler.post === 'function') {
+      if (typeof handler.post_mw === 'function') {
+        // @ts-ignore 
+        adminCustomRouter.post(handlerPath, handler.post_mw, handler.post);
+      } else {
+        // @ts-ignore 
+        adminCustomRouter.post(handlerPath, handler.post);
+      }
+    }
+    if (typeof handler.put === 'function') {
+      if (typeof handler.put_mw === 'function') {
+        // @ts-ignore 
+        adminCustomRouter.put(handlerPath, handler.put_mw, handler.put);
+      } else {
+        // @ts-ignore 
+        adminCustomRouter.put(handlerPath, handler.put);
+      }
+    }
+    if (typeof handler.delete === 'function') {
+      if (typeof handler.delet_mw === 'function') {
+        // @ts-ignore 
+        adminCustomRouter.delete(handlerPath, handler.delete_mw, handler.delete);
+      } else {
+        // @ts-ignore 
+        adminCustomRouter.delete(handlerPath, handler.delete);
+      }
+    }
+  })
+}
+
 async function initCustomRouter(customRouter?: Router<any, {}>) {
   let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
   console.log('handlerDirs', handlerDirs)
@@ -61,8 +107,8 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
 
   handlerDirs.forEach(path => {
     let handler = require('../' + path);
+    let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
     if (typeof handler.get === 'function') {
-      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
       if (typeof handler.get_mw === 'function') {
         // @ts-ignore 
         customRouter.get(handlerPath, handler.get_mw, handler.get);
@@ -72,7 +118,6 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
       }
     }
     if (typeof handler.post === 'function') {
-      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
       if (typeof handler.post_mw === 'function') {
         // @ts-ignore 
         customRouter.post(handlerPath, handler.post_mw, handler.post);
@@ -82,7 +127,6 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
       }
     }
     if (typeof handler.put === 'function') {
-      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
       if (typeof handler.put_mw === 'function') {
         // @ts-ignore 
         customRouter.put(handlerPath, handler.put_mw, handler.put);
@@ -92,7 +136,6 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
       }
     }
     if (typeof handler.delete === 'function') {
-      let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
       if (typeof handler.delet_mw === 'function') {
         // @ts-ignore 
         customRouter.delete(handlerPath, handler.delete_mw, handler.delete);
@@ -229,6 +272,7 @@ async function initApp({ customRouter, customMW }: { customRouter?: Router<any, 
   if (customMW) app.use(customMW);
   else console.log('No custom middleware provided.')
   await initAdminRouter();
+  // await initCustomAdminRouter();
   app.use(catchException);
   app.use(rateLimitMW);
   await initGraphQL();

@@ -1,6 +1,7 @@
 import Koa, {ParameterizedContext, Next} from "koa";
 import Router from "koa-router";
 import KoaBody from "koa-body";
+import {getFileFromDir} from "../utils/files";
 
 // handlers
 import { get_handler as admin_index_get, post_handler as admin_index_post } from "./routes/index";
@@ -110,4 +111,26 @@ adminRouter.use(admin_check);
   adminRouter.get("/graphql", graphql_get);
   adminRouter.get("/extensions", extensions_get);
 
+}
+
+// add custom tabs
+try {
+  // let handlerDirs = getFileFromDir('./', [], "handler\.js");
+  let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
+  console.log(handlerDirs)
+  let distinct:string[] = []
+  let array = handlerDirs.map(path => {
+    let [page] = path.split('/').splice(3);
+    return page;
+  })
+  let pages = [...(new Set(array))];
+  console.log(pages)
+  //   let adminCustomRouter = new Router();
+  //   handlerDirs.forEach(path => {
+  //     let handler = require('../../' + path);
+  //     let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
+  //     console.log(handlerPath, __dirname);
+  // });
+} catch (err) {
+  console.log(err, __dirname);
 }

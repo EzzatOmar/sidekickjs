@@ -24,10 +24,27 @@ function registerAdminPartials() {
 
 registerAdminPartials();
 
+function getCustomPages(){
+  try {
+    // let handlerDirs = getFileFromDir('./', [], "handler\.js");
+    let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
+    console.log(handlerDirs)
+    let distinct:string[] = []
+    let array = handlerDirs.map(path => {
+      let [page] = path.split('/').splice(3);
+      return page;
+    })
+    let pages = [...(new Set(array))];
+    return pages.map(p => {return {label: p, href: `/admin/${p.replace(' ', '-').toLocaleLowerCase()}`}})
+  } catch (err) {
+    return null;
+  }
+}
+
 export function render_page(page: string, view: any) {
   registerAdminPartials();
   let file = readFileSync(`./resources/private/html/${page}`, "utf-8")
-  return AdminHandlebars.compile(file)(view);    
+  return AdminHandlebars.compile(file)(Object.assign(view, {customPages: getCustomPages()}));    
 }
 
 export function render_partial(path: string, view: any) {
