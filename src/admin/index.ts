@@ -117,14 +117,20 @@ adminRouter.use(admin_check);
 try {
   // let handlerDirs = getFileFromDir('./', [], "handler\.js");
   let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
-  console.log(handlerDirs)
-  let distinct:string[] = []
-  let array = handlerDirs.map(path => {
-    let [page] = path.split('/').splice(3);
-    return page;
-  })
-  let pages = [...(new Set(array))];
-  console.log(pages)
+  // TODO: finish handler spec
+  let pages:{name: string, tabs: {name: string, handler: {get: any}}[]}[];
+  let a = handlerDirs.map(path => path.split('/').slice(3));
+  console.log(a)
+  // let handler = require('../../' + path);
+  // let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
+  // console.log(handlerDirs)
+  // let distinct:string[] = []
+  // let array = handlerDirs.map(path => {
+  //   let [page] = path.split('/').splice(3);
+  //   return page;
+  // })
+  // let pages = [...(new Set(array))];
+  // console.log(pages)
   //   let adminCustomRouter = new Router();
   //   handlerDirs.forEach(path => {
   //     let handler = require('../../' + path);
