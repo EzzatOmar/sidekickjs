@@ -78,7 +78,7 @@
             {{/page.extensions}}
 
             {{#page.customPage}}
-              {{> (lookup . 'customPartial') }}
+              {{> (lookup . 'customPartial') @root}}
             {{/page.customPage}}
 
           </div>

@@ -26,11 +26,15 @@ function registerAdminPartials() {
 registerAdminPartials();
 
 function customAdminPartials () {
+
   // AdminHandlebars.registerHelper('customPartials', function(context, options) { 
-  //   console.log('customAdminPartials', context, options);
-  //   return 'backend.logs'; 
+  //   // console.log('customAdminPartials', context, options, 
+  //   // context.data.root.page.customPage.customPartial
+  //   // // context.page.customPage.customPartial
+  //   // );
+  //   return context.data.root.page.customPage.customPartial;
   // });
-  let html = getFileFromDir('./custom/dist/admin', [], ".*\.html")
+  getFileFromDir('./custom/dist/admin', [], ".*\.html")
   .map((x:string):[string, string] => {
     let arr = x.split('/').splice(3);
     arr[arr.length - 1] = arr[arr.length - 1].slice(0, -5);
