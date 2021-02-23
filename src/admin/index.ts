@@ -127,6 +127,7 @@ customPages.forEach(c => {
 
   adminRouter.get(`/${pageLink}`, (ctx: KoaAdminCtx) => ctx.redirect(`/admin/${pageLink}/${c.tabs[0].name.replace(/ /g, '-').toLocaleLowerCase()}`));
   c.tabs.forEach(t => {
+    console.log(pageLink, t.handler.get?.toString())
     if (t.handler.get)
       if (t.handler.get_mw)
         adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.get_mw, t.handler.get);

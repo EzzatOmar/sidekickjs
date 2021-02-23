@@ -36,17 +36,15 @@ try {
   let pageSet = new Set(array);
   let pageTabTuple: string[][] = handlerDirs.map(path => path.split('/').slice(3).slice(0, 2).concat(path));
   pageSet.forEach(pageName => {
-    let tabs = pageTabTuple.filter(p => p[0] === pageName).map(p => p[1]);
+    let tabPathTuple = pageTabTuple.filter(p => p[0] === pageName).map(p => [p[1],p[2]]);
     let path = pageTabTuple.filter(p => p[0] === pageName).map(p => p[2])[0];
-    let handler = require('../../' + path);
-
-
-    console.log(pageName, tabs, path, handler);
+    
     customPages.push(
       {
         name: pageName,
         path: path,
-        tabs: tabs.map(t => {
+        tabs: tabPathTuple.map(([t, p]) => {
+          let handler = require('../../' + p);
           return {
             name: t,
             url: `/admin/${pageName.replace(/ /g, '-').toLocaleLowerCase()}/${t.replace(/ /g, '-').toLocaleLowerCase()}`,
@@ -65,7 +63,6 @@ try {
       }
     )
   })
-  // pageArr.map(p => { return { label: p, href: `/admin/${p.replace(/ /g, '-').toLocaleLowerCase()}` } })
 
 } catch (err) {
   console.log(err, __dirname);
