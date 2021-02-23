@@ -21,6 +21,7 @@ import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
 const session = require("koa-session2");
 import { RateLimiterMemory, IRateLimiterRes } from "rate-limiter-flexible";
+import { inject_sidekick } from "../middleware/sidekick";
 import { customPages } from "./customAdmin";
 import { render_custom_tab } from "./render";
 
@@ -92,12 +93,13 @@ adminRouter.use(session({
 adminRouter.use(KoaBody());
 adminRouter.use(rateLimitMW);
 // adminRouter.use(admin_check);
-adminRouter.use((ctx: KoaAdminCtx, next: Koa.Next) => {
+adminRouter.use(async (ctx: KoaAdminCtx, next: Koa.Next) => {
   ctx.admin = {
     render_custom_tab
   };
-  next();
+  await next();
 })
+adminRouter.use(inject_sidekick);
 
 {
   adminRouter.get("/", admin_index_get);

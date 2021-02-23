@@ -1,11 +1,12 @@
 import Koa from "koa";
+import {CustomParameterizedContext} from "../types";
 
 interface AdminSession {
   refresh: () => any,
   isAdmin?: true
 }
 
-export type KoaAdminCtx = Koa.ParameterizedContext | Koa.ParameterizedContext & { session: AdminSession };
+export type KoaAdminCtx = Koa.ParameterizedContext | CustomParameterizedContext & { session: AdminSession };
 
 export interface TableRow {
   table_schema: string,

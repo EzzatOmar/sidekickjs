@@ -7,15 +7,15 @@ import send from "koa-send";
 import { postgraphile } from "postgraphile";
 import { adminRouter } from "./admin/index";
 import { run } from "graphile-worker";
-import { mw_render_html, render_html } from "./render";
-import { query, getClient } from "./database/core";
+import { mw_render_html } from "./render";
+import { query } from "./database/core";
 import { jwtCookeToBearer } from "./middleware/cookie";
 import { authViaJWT } from "./middleware/access-control";
 import { rateLimitMW } from "./middleware/rate-limiter";
 import { catchException } from "./middleware/exception";
+import { inject_sidekick } from "./middleware/sidekick";
 import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
-import { genJWT } from "./utils/jwt";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -50,52 +50,6 @@ async function initAdminRouter() {
   app
     .use(adminRouter.routes())
     .use(adminRouter.allowedMethods());
-}
-
-async function initCustomAdminRouter() {
-  let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
-  let adminCustomRouter = new Router();
-  handlerDirs.forEach(path => {
-    let handler = require('../' + path);
-    let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
-    console.log(handlerPath);
-    if (typeof handler.get === 'function') {
-      if (typeof handler.get_mw === 'function') {
-        // @ts-ignore 
-        adminCustomRouter.get(handlerPath, handler.get_mw, handler.get);
-      } else {
-        // @ts-ignore 
-        adminCustomRouter.get(handlerPath, handler.get);
-      }
-    }
-    if (typeof handler.post === 'function') {
-      if (typeof handler.post_mw === 'function') {
-        // @ts-ignore 
-        adminCustomRouter.post(handlerPath, handler.post_mw, handler.post);
-      } else {
-        // @ts-ignore 
-        adminCustomRouter.post(handlerPath, handler.post);
-      }
-    }
-    if (typeof handler.put === 'function') {
-      if (typeof handler.put_mw === 'function') {
-        // @ts-ignore 
-        adminCustomRouter.put(handlerPath, handler.put_mw, handler.put);
-      } else {
-        // @ts-ignore 
-        adminCustomRouter.put(handlerPath, handler.put);
-      }
-    }
-    if (typeof handler.delete === 'function') {
-      if (typeof handler.delete_mw === 'function') {
-        // @ts-ignore 
-        adminCustomRouter.delete(handlerPath, handler.delete_mw, handler.delete);
-      } else {
-        // @ts-ignore 
-        adminCustomRouter.delete(handlerPath, handler.delete);
-      }
-    }
-  })
 }
 
 async function initCustomRouter(customRouter?: Router<any, {}>) {
@@ -145,25 +99,8 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
       }
     }
   })
-  app.use(async (ctx, next) => {
-    // include database in context
-    // include view context
-    // include render function
-    ctx.sidekick = {
-      db: { admin: { query, getClient } },
-      view: {
-        jwt: ctx.user,
-        prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',
-        staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
-        local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local',
-        protocol: process.env.DOMAIN === 'localhost' ? 'http://' : 'https://',
-        domain: `${process.env.DOMAIN}${process.env.DOMAIN === 'localhost' ? ':' + process.env.WEB_PORT : ''}`
-      },
-      render: render_html,
-      genJWT
-    }
-    await next();
-  })
+  customRouter
+    .use(inject_sidekick)
     .use(customRouter.routes())
     .use(customRouter.allowedMethods());
 }
@@ -272,7 +209,6 @@ async function initApp({ customRouter, customMW }: { customRouter?: Router<any, 
   if (customMW) app.use(customMW);
   else console.log('No custom middleware provided.')
   await initAdminRouter();
-  // await initCustomAdminRouter();
   app.use(catchException);
   app.use(rateLimitMW);
   await initGraphQL();
