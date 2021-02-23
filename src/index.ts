@@ -87,7 +87,7 @@ async function initCustomAdminRouter() {
       }
     }
     if (typeof handler.delete === 'function') {
-      if (typeof handler.delet_mw === 'function') {
+      if (typeof handler.delete_mw === 'function') {
         // @ts-ignore 
         adminCustomRouter.delete(handlerPath, handler.delete_mw, handler.delete);
       } else {

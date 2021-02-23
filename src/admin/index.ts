@@ -1,7 +1,6 @@
-import Koa, {ParameterizedContext, Next} from "koa";
+import Koa, { ParameterizedContext, Next } from "koa";
 import Router from "koa-router";
 import KoaBody from "koa-body";
-import {getFileFromDir} from "../utils/files";
 
 // handlers
 import { get_handler as admin_index_get, post_handler as admin_index_post } from "./routes/index";
@@ -22,6 +21,8 @@ import { get_handler as extensions_get, } from "./routes/extensions";
 import { KoaAdminCtx } from "./types";
 const session = require("koa-session2");
 import { RateLimiterMemory, IRateLimiterRes } from "rate-limiter-flexible";
+import { customPages } from "./customAdmin";
+import { render_custom_tab } from "./render";
 
 // means that we have 5 points every 2 seconds
 const rateLimiter = new RateLimiterMemory({
@@ -30,20 +31,20 @@ const rateLimiter = new RateLimiterMemory({
   blockDuration: 60, // Block for 1 minute
 });
 
-const rateLimitMW = async (ctx:ParameterizedContext, next:Next) => {
+const rateLimitMW = async (ctx: ParameterizedContext, next: Next) => {
   try {
     await rateLimiter.consume(ctx.ip);
-    try { 
+    try {
       await next();
     } catch (e) {
-      if((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
+      if ((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
         console.log(e);
       }
       ctx.status = 500;
       return;
     }
   } catch (rejRes) {
-    if((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
+    if ((process.env.ENVIRONMENT as string).toLowerCase() !== 'prod') {
       console.log(rejRes);
     }
 
@@ -90,7 +91,13 @@ adminRouter.use(session({
 }));
 adminRouter.use(KoaBody());
 adminRouter.use(rateLimitMW);
-adminRouter.use(admin_check);
+// adminRouter.use(admin_check);
+adminRouter.use((ctx: KoaAdminCtx, next: Koa.Next) => {
+  ctx.admin = {
+    render_custom_tab
+  };
+  next();
+})
 
 {
   adminRouter.get("/", admin_index_get);
@@ -113,30 +120,35 @@ adminRouter.use(admin_check);
 
 }
 
-// add custom tabs
-try {
-  // let handlerDirs = getFileFromDir('./', [], "handler\.js");
-  let handlerDirs = getFileFromDir('./custom/dist/admin', [], "handler\.js");
-  // TODO: finish handler spec
-  let pages:{name: string, tabs: {name: string, handler: {get: any}}[]}[];
-  let a = handlerDirs.map(path => path.split('/').slice(3));
-  console.log(a)
-  // let handler = require('../../' + path);
-  // let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
-  // console.log(handlerDirs)
-  // let distinct:string[] = []
-  // let array = handlerDirs.map(path => {
-  //   let [page] = path.split('/').splice(3);
-  //   return page;
-  // })
-  // let pages = [...(new Set(array))];
-  // console.log(pages)
-  //   let adminCustomRouter = new Router();
-  //   handlerDirs.forEach(path => {
-  //     let handler = require('../../' + path);
-  //     let handlerPath = "/" + path.split('/').map(s => s.replace(' ', '-').toLocaleLowerCase()).splice(3).slice(0, -1).join('/');
-  //     console.log(handlerPath, __dirname);
-  // });
-} catch (err) {
-  console.log(err, __dirname);
-}
+// add customAdmin routes
+customPages.forEach(c => {
+  // page redirect to first tab
+  let pageLink = c.name.replace(/ /g, '-').toLocaleLowerCase();
+
+  adminRouter.get(`/${pageLink}`, (ctx: KoaAdminCtx) => ctx.redirect(`/admin/${pageLink}/${c.tabs[0].name.replace(/ /g, '-').toLocaleLowerCase()}`));
+  c.tabs.forEach(t => {
+    if (t.handler.get)
+      if (t.handler.get_mw)
+        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.get_mw, t.handler.get);
+      else
+        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.get);
+
+    if (t.handler.post)
+      if (t.handler.post_mw)
+        adminRouter.post(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.post_mw, t.handler.post);
+      else
+        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.post);
+
+    if (t.handler.put)
+      if (t.handler.put_mw)
+        adminRouter.put(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.put_mw, t.handler.put);
+      else
+        adminRouter.put(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.put);
+
+    if (t.handler.delete)
+      if (t.handler.delete_mw)
+        adminRouter.delete(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.delete_mw, t.handler.delete);
+      else
+        adminRouter.delete(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.delete);
+  })
+})
