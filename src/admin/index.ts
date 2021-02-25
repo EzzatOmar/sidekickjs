@@ -22,7 +22,7 @@ import { KoaAdminCtx } from "./types";
 const session = require("koa-session2");
 import { RateLimiterMemory, IRateLimiterRes } from "rate-limiter-flexible";
 import { inject_sidekick } from "../middleware/sidekick";
-import { customPages } from "./customAdmin";
+import { customPages, HandlerObject } from "./customAdmin";
 import { render_custom_tab } from "./render";
 
 // means that we have 5 points every 2 seconds
@@ -122,6 +122,37 @@ adminRouter.use(inject_sidekick);
 
 }
 
+/**
+ * This function includes new routes to adminRouter 
+ * @param path path like /page/tab/subHandler , will auto prefix /admin
+ * @param handlerObj 
+ */
+function createCustomAdminRoutes(path:string, handlerObj: HandlerObject) {
+  if (handlerObj.get)
+    if (handlerObj.get_mw)
+      adminRouter.get(path, handlerObj.get_mw, handlerObj.get);
+    else
+      adminRouter.get(path, handlerObj.get);
+  
+  if (handlerObj.post)
+    if (handlerObj.post_mw)
+      adminRouter.post(path, handlerObj.post_mw, handlerObj.post);
+    else
+      adminRouter.post(path, handlerObj.post);
+  
+  if (handlerObj.put)
+    if (handlerObj.put_mw)
+      adminRouter.put(path, handlerObj.put_mw, handlerObj.put);
+    else
+      adminRouter.put(path, handlerObj.put);
+  
+  if (handlerObj.delete)
+    if (handlerObj.delete_mw)
+      adminRouter.delete(path, handlerObj.delete_mw, handlerObj.delete);
+    else
+    adminRouter.delete(path, handlerObj.delete);
+}
+
 // add customAdmin routes
 customPages.forEach(c => {
   // page redirect to first tab
@@ -129,29 +160,16 @@ customPages.forEach(c => {
 
   adminRouter.get(`/${pageLink}`, (ctx: KoaAdminCtx) => ctx.redirect(`/admin/${pageLink}/${c.tabs[0].name.replace(/ /g, '-').toLocaleLowerCase()}`));
   c.tabs.forEach(t => {
-    console.log(pageLink, t.handler.get?.toString())
-    if (t.handler.get)
-      if (t.handler.get_mw)
-        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.get_mw, t.handler.get);
-      else
-        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.get);
-
-    if (t.handler.post)
-      if (t.handler.post_mw)
-        adminRouter.post(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.post_mw, t.handler.post);
-      else
-        adminRouter.get(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.post);
-
-    if (t.handler.put)
-      if (t.handler.put_mw)
-        adminRouter.put(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.put_mw, t.handler.put);
-      else
-        adminRouter.put(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.put);
-
-    if (t.handler.delete)
-      if (t.handler.delete_mw)
-        adminRouter.delete(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.delete_mw, t.handler.delete);
-      else
-        adminRouter.delete(`/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`, t.handler.delete);
+      let tabPath = `/${pageLink}/${t.name.replace(/ /g, '-').toLocaleLowerCase()}`;
+      createCustomAdminRoutes(tabPath, t.handler);
+      // create paths for sub handler
+      t.subPageHandler.forEach(item => {
+        try {
+          let handler = require('../../' + item.join('/'));
+          createCustomAdminRoutes('/' + item.slice(3, -1).join('/').replace(/ /g, '-').toLocaleLowerCase(), handler);
+        } catch (err) {
+          console.log('ERROR: could not construct path for', item);
+        }
+    })
   })
 })

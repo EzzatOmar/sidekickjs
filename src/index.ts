@@ -54,7 +54,7 @@ async function initAdminRouter() {
 
 async function initCustomRouter(customRouter?: Router<any, {}>) {
   let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
-  console.log('handlerDirs', handlerDirs)
+  console.log('custom directories found: ', handlerDirs)
   if (!customRouter) {
     customRouter = new Router();
   }
