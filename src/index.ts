@@ -99,7 +99,7 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
       }
     }
   })
-  customRouter
+  app
     .use(inject_sidekick)
     .use(customRouter.routes())
     .use(customRouter.allowedMethods());
