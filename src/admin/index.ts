@@ -92,7 +92,7 @@ adminRouter.use(session({
 }));
 adminRouter.use(KoaBody());
 adminRouter.use(rateLimitMW);
-// adminRouter.use(admin_check);
+adminRouter.use(admin_check);
 adminRouter.use(async (ctx: KoaAdminCtx, next: Koa.Next) => {
   ctx.admin = {
     render_custom_tab
