@@ -168,7 +168,7 @@ customPages.forEach(c => {
           let handler = require('../../' + item.join('/'));
           createCustomAdminRoutes('/' + item.slice(3, -1).join('/').replace(/ /g, '-').toLocaleLowerCase(), handler);
         } catch (err) {
-          console.log('ERROR: could not construct path for', item);
+          console.log('ERROR: could not construct path for', item, err);
         }
     })
   })
