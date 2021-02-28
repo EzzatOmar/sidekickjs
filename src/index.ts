@@ -153,34 +153,31 @@ async function initGraphQL() {
  */
 async function serveFromPages(ctx: ParameterizedContext) {
   try {
-    if (ctx.url.endsWith('.js')) {
+    if(ctx.url.match(/^\/js.*\.\..*$/g)) {
+      throw new Error("Do not allow parent path.");
+    }
+    else if (!ctx.url.startsWith('/js') && ctx.url.endsWith('.js')) {
       throw new Error("Javascript not allowed.");
     }
     return send(ctx, ctx.url,
       {
         root: './custom/dist/pages',
-        maxage: 1000 * 60 * 60,
-        index: "index.html",
-        extensions: [".html", ".htm", ".handlebars"]
+        index: "index",
+        extensions: [".uncached.html", ".uncached.css", ".uncached.js", ".uncached.json" ,".html", ".htm", ".handlebars"],
+        setHeaders: (res, path, stats) => {
+          // check if file should be cached
+          if(path.match(/^.*\.uncached\..*$/g)) {
+            res.setHeader('Cache-Control', `max-age=0`)
+          } else {
+            res.setHeader('Cache-Control', `max-age=${60 * 60 * 24 * 7}`)
+          }
+        }
       });
   } catch (err) {
     throw Error(err);
   }
 }
 
-/**
- * Usually immutable data, including images, scripts, videos goes here.
- * 30 days TTL
- */
-async function serveFromAssets(ctx: ParameterizedContext) {
-  return send(ctx, ctx.url,
-    {
-      root: './custom/dist/assets',
-      maxage: 30 * 24 * 60 * 60,
-      index: "index.html",
-      extensions: [".html", ".htm"]
-    });
-}
 
 async function initWebServer() {
   app
@@ -194,9 +191,6 @@ async function initWebServer() {
         return;
       } else {
         await serveFromPages(ctx)
-          .catch(async err => {
-            await serveFromAssets(ctx);
-          })
           .catch(err => {
             ctx.status = 404;
             return;
