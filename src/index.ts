@@ -147,8 +147,8 @@ async function initGraphQL() {
 
 
 /**
- * Usually HTML and Partials goes here. 1h TTL
- * No javascript will be served to protect backend code.
+ * Serves static and handlebars files. Default cache 1 day unless .uncached.<ext> is includes.
+ * No javascript (except for /js/ ) will be served to protect backend code.
  * @param ctx 
  */
 async function serveFromPages(ctx: ParameterizedContext) {
@@ -169,7 +169,7 @@ async function serveFromPages(ctx: ParameterizedContext) {
           if(path.match(/^.*\.uncached\..*$/g)) {
             res.setHeader('Cache-Control', `max-age=0`)
           } else {
-            res.setHeader('Cache-Control', `max-age=${60 * 60 * 24 * 7}`)
+            res.setHeader('Cache-Control', `max-age=${60 * 60 * 24}`)
           }
         }
       });
