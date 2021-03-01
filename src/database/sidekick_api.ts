@@ -23,8 +23,8 @@ function jwtToAuthStmt(jwt:any):string[] {
   }
 }
 
-export function syncQuery(jwt: any, text:string, params:any = []):any[] {
-  client.querySync('BEGIN;');
+export function syncQueryReadOnly(jwt: any, text:string, params:any = []):any[] {
+  client.querySync('BEGIN TRANSACTION ISOLATION LEVEL READ ONLY;');
   let stmts = jwtToAuthStmt(jwt);
   stmts.forEach(stmt => client.querySync(stmt));
   var x = client.querySync(text, params);

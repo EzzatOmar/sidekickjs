@@ -3,7 +3,7 @@ import Handlebars_ from "handlebars";
 // import Hbs from "handlebars";
 import {getFileFromDir} from "./utils/files";
 import {ParameterizedContext, Next} from "koa";
-import { syncQuery } from "./database/sidekick_api";
+import { syncQueryReadOnly } from "./database/sidekick_api";
 // var promisedHandlebars = require('promised-handlebars')
 // const Handlebars = promisedHandlebars(Handlebars_)
 // var CustomHandlebars = promisedHandlebars(require('handlebars'));
@@ -54,7 +54,7 @@ export function registerCustomHelpers() {
     let jwt = options.data.root.jwt;
 
     try {
-      let r = syncQuery(jwt, args, [])
+      let r = syncQueryReadOnly(jwt, args, [])
       
       // console.log(r)
       return r;
