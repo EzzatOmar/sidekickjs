@@ -55,6 +55,7 @@
     "koa-send": "^5.0.1",
     "koa-session2": "^2.2.10",
     "pg": "^8.5.1",
+    "pg-native": "^3.0.0",
     "postcss": "^8.2.2",
     "postgraphile": "^4.10.0",
     "rate-limiter-flexible": "^2.2.1",

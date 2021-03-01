@@ -1,7 +1,7 @@
 import Koa from "koa";
 import { KoaAdminCtx, TableRow, SchemaTables } from "../../types";
 import { render_partial } from "../../render";
-import { getClient } from "../../../database/core";
+import { getClient } from "../../../database/admin";
 import { List } from "immutable";
 import Handlebars_ from "handlebars";
 

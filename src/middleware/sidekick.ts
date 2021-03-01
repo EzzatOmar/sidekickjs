@@ -1,5 +1,5 @@
 import { ParameterizedContext, Next } from "koa";
-import {query, getClient } from "../database/core";
+import {query, getClient } from "../database/admin";
 import {genJWT} from "../utils/jwt";
 import {render_html} from "../render";
 

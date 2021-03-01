@@ -8,7 +8,7 @@ import { postgraphile } from "postgraphile";
 import { adminRouter } from "./admin/index";
 import { run } from "graphile-worker";
 import { mw_render_html } from "./render";
-import { query } from "./database/core";
+import { query } from "./database/admin";
 import { jwtCookeToBearer } from "./middleware/cookie";
 import { authViaJWT } from "./middleware/access-control";
 import { rateLimitMW } from "./middleware/rate-limiter";

@@ -2,7 +2,7 @@ import Koa from "koa";
 import { KoaAdminCtx } from "../../types";
 import { render_page } from "../../render";
 import { PoolClient, } from "pg";
-import { query, getClient } from "../../../database/core";
+import { query, getClient } from "../../../database/admin";
 
 interface user { id: number, created_at: string, updated_at: string, blocked: boolean, username: string | null, email: string | null };
 const get_user_stmt = `select u.*,ud.username, ud.email from sidekick.users u inner join sidekick.users_decoration ud ON u.uuid = ud.uuid;`;

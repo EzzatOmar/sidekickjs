@@ -1,9 +1,14 @@
 import { readFileSync, ReadStream, existsSync } from "fs";
-import Handlebars from "handlebars";
+import Handlebars_ from "handlebars";
+// import Hbs from "handlebars";
 import {getFileFromDir} from "./utils/files";
 import {ParameterizedContext, Next} from "koa";
+import { syncQuery } from "./database/sidekick_api";
+// var promisedHandlebars = require('promised-handlebars')
+// const Handlebars = promisedHandlebars(Handlebars_)
+// var CustomHandlebars = promisedHandlebars(require('handlebars'));
 
-const CustomHandlebars = Handlebars.create();
+const CustomHandlebars = Handlebars_.create();
 
 function getPartialDirectory(){
   if(existsSync("./custom/resources/public/web/partials/handlebars")) {
@@ -41,6 +46,26 @@ export function registerCustomPartials() {
 }
 
 registerCustomPartials();
+
+export function registerCustomHelpers() {
+  CustomHandlebars.registerHelper('sql', function (args, options) {
+    // console.log(args, options);
+    // console.log(options.data.root.jwt);
+    let jwt = options.data.root.jwt;
+
+    try {
+      let r = syncQuery(jwt, args, [])
+      
+      // console.log(r)
+      return r;
+    } catch (err) {
+      console.log(args, err);
+      return "BAD";
+    }
+
+})
+}
+registerCustomHelpers();
 
 
 function readStream(stream:ReadStream, encoding:BufferEncoding = "utf8"):Promise<string> {
