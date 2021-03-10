@@ -16,6 +16,7 @@ import { catchException } from "./middleware/exception";
 import { inject_sidekick } from "./middleware/sidekick";
 import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
+import { dynamic_mw } from "./dynamic_middleware";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -159,19 +160,11 @@ async function serveFromPages(ctx: ParameterizedContext) {
     else if (!ctx.url.startsWith('/js') && ctx.url.endsWith('.js')) {
       throw new Error("Javascript not allowed.");
     }
-    return send(ctx, ctx.url,
+    return send(ctx, ctx.sidekick.dynamicMiddleware?.path,
       {
-        root: './custom/dist/pages',
-        index: "index",
-        extensions: [".uncached.html", ".uncached.css", ".uncached.js", ".uncached.json" ,".html", ".htm", ".handlebars"],
-        setHeaders: (res, path, stats) => {
-          // check if file should be cached
-          if(path.match(/^.*\.uncached\..*$/g)) {
-            res.setHeader('Cache-Control', `max-age=0`)
-          } else {
-            res.setHeader('Cache-Control', `max-age=${60 * 60 * 24}`)
-          }
-        }
+        //root: './custom/dist/pages',
+        index: "index.html",
+        extensions: [".html", ".css", ".htm"]
       });
   } catch (err) {
     throw Error(err);
@@ -182,6 +175,7 @@ async function serveFromPages(ctx: ParameterizedContext) {
 async function initWebServer() {
   app
     .use(mw_render_html)
+    .use(dynamic_mw)
     .use(async (ctx, next) => {
       await next();
       let static_file_path = ctx.url.match(/\/admin\/.*$/g);
