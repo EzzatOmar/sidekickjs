@@ -25,6 +25,7 @@ Sidekick is in early development. The API might change in the future.
 ### Prerequisite  
 - Install latest node & npm
 - Install docker & docker-compose
+- Needs pg_config on your path [https://github.com/brianc/node-pg-native#install]
 
 
 ```bash
