@@ -1,0 +1,1 @@
+- pg-native will not run in node:alpine
