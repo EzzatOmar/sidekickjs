@@ -153,14 +153,15 @@ async function initGraphQL() {
  * @param ctx 
  */
 async function serveFromPages(ctx: ParameterizedContext) {
+  let path:string = ctx.sidekick.dynamicMiddleware?.path || ctx.url;
   try {
-    if(ctx.url.match(/^\/js.*\.\..*$/g)) {
+    if(path.match(/^\/js.*\.\..*$/g)) {
       throw new Error("Do not allow parent path.");
     }
-    else if (!ctx.url.startsWith('/js') && ctx.url.endsWith('.js')) {
+    else if (!path.startsWith('/js') && path.endsWith('.js')) {
       throw new Error("Javascript not allowed.");
     }
-    return send(ctx, ctx.sidekick.dynamicMiddleware?.path,
+    return send(ctx, path,
       {
         //root: './custom/dist/pages',
         index: "index.html",
