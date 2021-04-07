@@ -37,11 +37,14 @@ function search_for_file_match(path:string) {
       let extension = splitDot[splitDot.length - 1];
       let files = getFileFromDir('./custom/dist/pages', [], path);
       let path_ = path.split('/').splice(1).map(s => s===''?'index':s);
+      console.log('path: ' + path)
+      console.log('path_: ' + path_)
       let a = files.filter(s => {
         let s_ = s.split('/').splice(3).map(x => x.split('.')[0])
-          return s_.join('/') === path_.join('/')
+          return path==='/'?s.includes('index'):true && 
+          (s_.join('/') === path_.join('/')
            || s_.join('/') + extension?"."+extension:'' === path_.join('/')
-           || s_.join('/') === [...path_, 'index'].join('/');
+           || s_.join('/') === [...path_, 'index'].join('/'));
       });
       return a;
   } catch(err) {
@@ -51,7 +54,7 @@ function search_for_file_match(path:string) {
 
 export async function dynamic_mw(ctx: CustomParameterizedContext, next: Next) {
     let path = search_for_file_match(ctx.url).sort((a, b) => b.length - a.length)[0];
-    console.log('dynamic mw: ', path, ctx.url)
+    console.log('dynamic mw: ', path, ctx.url, search_for_file_match(ctx.url).sort((a, b) => b.length - a.length))
     if(path) {
       let mw = path.split('.').filter(s => s.startsWith('mw_')).map(s => 
         {

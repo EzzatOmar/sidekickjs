@@ -203,7 +203,7 @@ async function initApp({ customRouter, customMW }: { customRouter?: Router<any, 
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
-  await initCustomRouter(customRouter);
+  await initCustomRouter(customRouter).catch(err => console);
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
