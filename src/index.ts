@@ -17,6 +17,7 @@ import { inject_sidekick } from "./middleware/sidekick";
 import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
 import { dynamic_mw } from "./dynamic_middleware";
+import { CustomParameterizedContext } from "./types";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -152,13 +153,13 @@ async function initGraphQL() {
  * No javascript (except for /js/ ) will be served to protect backend code.
  * @param ctx 
  */
-async function serveFromPages(ctx: ParameterizedContext) {
+ async function serveFromPages(ctx: CustomParameterizedContext) {
   let path:string = ctx.sidekick.dynamicMiddleware?.path || ctx.url;
   try {
     if(path.match(/^\/js.*\.\..*$/g)) {
       throw new Error("Do not allow parent path.");
     }
-    else if (!path.startsWith('/js') && path.endsWith('.js')) {
+    else if (!(path.startsWith('/js') || path.startsWith('custom/dist/pages/js'))  && path.endsWith('.js')) {
       throw new Error("Javascript not allowed.");
     }
     return send(ctx, path,

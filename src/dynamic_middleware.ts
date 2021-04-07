@@ -31,28 +31,23 @@ try {
 }
 
 function search_for_file_match(path:string) {
-    try {
-        path = path.split('?')[0];
-        let searchPath = "";
-        if(path.endsWith('.css')) {
-            searchPath = path.slice(0,-4)+'.*.css';
-        } else { searchPath = path;}
-        let files = getFileFromDir('./custom/dist/pages', [], searchPath);
-        let path_ = path.split('/').splice(1).map(s => s===''?'index':s);
-        console.log(path, files)
-        let a = files.filter(s => {
-            let s_ = s.split('/').splice(3).map(x => x.split('.')[0])
-            let last_extension = s.split('/').splice(3).map(x => x.split('.').reverse()[0]).reverse()[0];
-            console.log(s_.join('/') + '.' + last_extension , path_.join('/'))
-            return s_.join('/') === path_.join('/') 
-            || s_.join('/') === [...path_, 'index'].join('/')
-            || s_.join('/') + '.' + last_extension === path_.join('/');
-        });
-        return a;
-    } catch(err) {
-      return [];
-    }
+  try {
+      path = path.split('?')[0];
+      let splitDot = path.split('.');
+      let extension = splitDot[splitDot.length - 1];
+      let files = getFileFromDir('./custom/dist/pages', [], path);
+      let path_ = path.split('/').splice(1).map(s => s===''?'index':s);
+      let a = files.filter(s => {
+        let s_ = s.split('/').splice(3).map(x => x.split('.')[0])
+          return s_.join('/') === path_.join('/')
+           || s_.join('/') + extension?"."+extension:'' === path_.join('/')
+           || s_.join('/') === [...path_, 'index'].join('/');
+      });
+      return a;
+  } catch(err) {
+    return [];
   }
+}
 
 export async function dynamic_mw(ctx: CustomParameterizedContext, next: Next) {
     let path = search_for_file_match(ctx.url).sort((a, b) => b.length - a.length)[0];

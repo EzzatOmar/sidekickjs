@@ -1,5 +1,5 @@
-import { ParameterizedContext } from "koa";
-import { Pool, PoolClient, QueryResult } from "pg";
+import { Next, ParameterizedContext } from "koa";
+import { PoolClient, QueryResult } from "pg";
 
 type Query = (text: string, params: any) => Promise<QueryResult>;
 type ClientFn = () => Promise<PoolClient & { lastQuery?: any[] }>;
@@ -28,6 +28,7 @@ export interface CustomParameterizedContext extends ParameterizedContext {
       domain: string
     },
     render: (path: string, view: any) => string,
-    genJWT: (user_uuid: string, role: string, exp?: number, payload?: any) => string
+    genJWT: (user_uuid: string, role: string, exp?: number, payload?: any) => string,
+    dynamicMiddleware?: { path: string, mw: {mw: string, fn: (ctx: CustomParameterizedContext, next:Next) => {}, args: any}[]}
   }
 }
