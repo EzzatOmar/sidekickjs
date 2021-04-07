@@ -11,7 +11,7 @@ HTML are executed directly as handlebars partials or been served by custom route
 Just put your custom code in ./custom/dist and your web server is ready to go.
 
 Sidekick works on top of other open source projects.
-- [Postrest](https://www.postgresql.org/) as the database
+- [PostgreSQL](https://www.postgresql.org/) as the database
 - [Postgraphile](https://github.com/graphile/postgraphile) generates GraphQL from the database
 - [PostgREST](https://github.com/PostgREST/postgrest) generates a REST-API from the database
 - [graphile-worker](https://github.com/graphile/worker/) provides async background functions executed by Postgres
@@ -42,6 +42,13 @@ npm run tw-prod
 
 ```bash
 cp _.env .env
+```
+
+Create a static index.html file in custom/dist/pages
+
+
+```bash
+docker create network sidekick
 ```
 
 ```bash
