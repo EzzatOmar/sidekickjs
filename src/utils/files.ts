@@ -21,7 +21,6 @@ export function getFileFromDir(dirPath: string, arrayOfFiles: string[], regex?: 
   allFiles.forEach((file: string) => {
     let indexOf = !!file.indexOf(dirPath);
     let newPart = file.substr(dirPath.length - (indexOf ? 1 : -1));
-    // console.log(newPart, regex, (!regex) || new RegExp(regex).test(newPart))
     if ((!regex) || new RegExp(regex).test(newPart)) {
       arrayOfFiles.push(file);
     }

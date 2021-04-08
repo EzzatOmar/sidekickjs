@@ -64,18 +64,14 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
       if(pathCategory.extension==='html') {
         fileRegex = `(${pathCategory.filename}|${pathCategory.filename}/index).*\.html`;
       } else {
-        fileRegex = `${pathCategory.filename}\..*\.${pathCategory.extension}`
+        fileRegex = `${pathCategory.filename}.*\.${pathCategory.extension}`
       }
       let files = getFiles(pagesDir,fileRegex);
-      // console.log('files', files, pathCategory)
       if (files.length === 0) return null;
 
       let filtered = files.filter((file: string)=>{
         return new RegExp(`^${pathCategory.filename}.*${pathCategory.extension}`).test(file.substring(pagesDir.length + 1)); 
       })
-      // console.log(filtered)
-
-      console.log(filtered)
       
       // if not trailing slash exclude index.*.html
       if(!pathCategory.slash) {
@@ -87,7 +83,6 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
       }
       
       // sort by longest dotSplit
-      // console.log(filtered)
       filtered.sort((a,b) => b.split('.').length - a.split('.').length)[0];
 
       // if trailing slash put index before

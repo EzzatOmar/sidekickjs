@@ -1,6 +1,5 @@
 import assert from "assert";
 import rewire from "rewire";
-import { getFileFromDir } from "../utils/files";
 
 let args = [
     {path: "/", mockedFiles: [], category: {slash: true, extension: "html", filename: "index"}, searchResult: null},
@@ -58,7 +57,6 @@ function test_pathToCategory() {
 function search_for_file_match_test() {
     const dyMw = rewire('../dynamic_middleware.js');
     let search_for_file_match = dyMw.__get__('search_for_file_match');
-    //let files = getFileFromDir('./custom/dist/pages', [], "/");
 
     args.forEach(({path, mockedFiles, searchResult}) => {
         dyMw.__set__(
@@ -81,7 +79,4 @@ export function run() {
     } catch (e) {
         console.log(e);
     }
-    let files = getFileFromDir('custom/dist/pages', [], "^f.*")
-    console.log(files);
-    //console.log(assert.deepStrictEqual({}, {}))
 }
