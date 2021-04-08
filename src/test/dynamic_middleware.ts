@@ -42,6 +42,11 @@ let args = [
      mockedFiles: ["custom/dist/pages/foo.mw_cached.html", "custom/dist/pages/test/foo/index.html", "custom/dist/pages/test/foo.mw_cached.html"],
      category: {slash: true, extension: "html", filename: "test/foo"},
      searchResult: "custom/dist/pages/test/foo/index.html"},
+
+     {path: "/test", 
+     mockedFiles: ["custom/dist/pages/test/foo.html", "custom/dist/pages/test/index.html"],
+     category: {slash: false, extension: "html", filename: "test"},
+     searchResult: "custom/dist/pages/test/index.html"},
 ];
 
 function test_pathToCategory() {

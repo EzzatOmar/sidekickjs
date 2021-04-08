@@ -50,13 +50,25 @@ function pathToCategory(path: string){
 }
 
 /**
+ * remove all extensions, folders, mw_names
+ */
+function filepathTofilename(filePath: string) {
+  filePath = filePath.split('?')[0];
+  let lastSlash = filePath.split('/').pop();
+  if(lastSlash) {
+    return lastSlash.split('.')[0];
+  }
+  return "";
+}
+
+/**
  * returns filepath relative from the provided path
  * check tests in test/dynamic_middleware.ts
  */
 function search_for_file_match(path:string, pagesDir:string):string | null {
   // get rid of starting ./
   pagesDir = pagesDir.startsWith('./')?pagesDir.substring(2):pagesDir;
-
+  // console.log("TESTING ______")
   try {
       path = path.split('?')[0];
       let pathCategory = pathToCategory(path);
@@ -67,19 +79,29 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
         fileRegex = `${pathCategory.filename}.*\.${pathCategory.extension}`
       }
       let files = getFiles(pagesDir,fileRegex);
+      console.log(files)
       if (files.length === 0) return null;
 
       let filtered = files.filter((file: string)=>{
         return new RegExp(`^${pathCategory.filename}.*${pathCategory.extension}`).test(file.substring(pagesDir.length + 1)); 
       })
+
+      // every file must include index or the filename
+      filtered = filtered.filter((file: string)=>{
+        let filename = filepathTofilename(file);
+        return filename === 'index' || pathCategory.filename.endsWith(filename)
+      });
       
-      // if not trailing slash exclude index.*.html
+      // if not trailing slash exclude index.*.html, except if we filter all matches out, then reverse
       if(!pathCategory.slash) {
-        filtered = filtered.filter((file: string)=>{
+        let temp = filtered.filter((file: string)=>{
           let splitDot = file.split('/');
           let last = splitDot[splitDot.length - 1];
           return !(new RegExp(`index(\.(mw_.*)*)*html$`).test(last));
-        })
+        });
+        if(temp.length > 0) {
+          filtered = temp;
+        }
       }
       
       // sort by longest dotSplit
