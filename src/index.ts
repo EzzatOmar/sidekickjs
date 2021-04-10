@@ -2,6 +2,7 @@ const dotenv = require("dotenv")
 dotenv.config()
 
 import Koa, { Next, ParameterizedContext } from "koa";
+import websockify from "koa-websocket";
 import Router from "koa-router";
 import send from "koa-send";
 import { postgraphile } from "postgraphile";
@@ -21,7 +22,7 @@ import { CustomParameterizedContext } from "./types";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
-const app = new Koa();
+const app = websockify(new Koa());
 
 async function start_background_jobs() {
   let taskDirectory = `${__dirname}/../custom/dist/tasks`;
@@ -54,17 +55,36 @@ async function initAdminRouter() {
     .use(adminRouter.allowedMethods());
 }
 
-async function initCustomRouter(customRouter?: Router<any, {}>) {
+async function initCustomRouter(customRouter?: Router<any, {}>, websocketRouter?: Router<any, {}>) {
   let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
-  console.log('custom directories found: ', handlerDirs)
+  console.log('Custom handler directories found: ', handlerDirs)
   if (!customRouter) {
     customRouter = new Router();
   }
+  if (!websocketRouter) {
+    websocketRouter = new Router();
+  }
 
+  console.log('Searching for custom handler');
+
+  
   handlerDirs.forEach(path => {
     let handler = require('../' + path);
+    console.log('handler found:', handler);
     let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+    
+    // websocket router which needs to be put in app.ws.use
+    if (typeof handler.websocket === 'function') {
+      if (typeof handler.websocket_mw === 'function') {
+        // @ts-ignore 
+        websocketRouter.all(handlerPath, handler.websocket_mw, handler.websocket);
+      }
+      // @ts-ignore 
+      websocketRouter.all(handlerPath, handler.websocket);
+    }
+
     if (typeof handler.get === 'function') {
+      console.log('insert get')
       if (typeof handler.get_mw === 'function') {
         // @ts-ignore 
         customRouter.get(handlerPath, handler.get_mw, handler.get);
@@ -105,6 +125,9 @@ async function initCustomRouter(customRouter?: Router<any, {}>) {
     .use(inject_sidekick)
     .use(customRouter.routes())
     .use(customRouter.allowedMethods());
+  app.ws.use(inject_sidekick);
+    // @ts-ignore
+  app.ws.use(websocketRouter.routes());
 }
 
 async function initGraphQL() {
@@ -195,15 +218,21 @@ async function initWebServer() {
     });
 }
 
-async function initApp({ customRouter, customMW }: { customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any> }) {
+async function initApp({ customRouter, customMW, websocketRouter }
+  : { 
+    customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any>,
+    websocketRouter?: Router<any, {}>
+   },
+    ) {
   if (customMW) app.use(customMW);
+
   else console.log('No custom middleware provided.')
   await initAdminRouter();
   app.use(catchException);
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
-  await initCustomRouter(customRouter).catch(err => console);
+  await initCustomRouter(customRouter, websocketRouter).catch(err => console);
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
