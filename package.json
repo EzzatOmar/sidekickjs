@@ -8,7 +8,7 @@
     "test2": "(grep PGUSER_API_PW .env | cut -d '=' -f2 )",
     "compile": "npx tsc",
     "watch": "npx tsc -w",
-    "nodemon": "npx nodemon . -e html,js --delay 200ms",
+    "nodemon": "npx nodemon . -e html,js --delay 200ms --ignore custom/dist/pages/js",
     "test-watch": "mocha --recursive --watch",
     "watch-graphql": "npx postgraphile -c postgres://sidekick_api:todoChangeMe@localhost:6543/sidekick -s mysider,sidekick --enhance-graphiql --allow-explain --default-role sidekick_public --watch --owner-connection postgres://sidekick_admin:psqlpw123@localhost:6543/sidekick --jwt-token-identifier sidekick.jwt_token --jwt-secret SECRET_FOR_JWT",
     "tw-prod": "env NODE_ENV=production npx tailwindcss build resources/private/css/tw-source.css -o resources/private/css/tw-core.css",

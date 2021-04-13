@@ -232,7 +232,7 @@ async function initApp({ customRouter, customMW, websocketRouter }
   app.use(rateLimitMW);
   await initGraphQL();
   app.use(authViaJWT);
-  await initCustomRouter(customRouter, websocketRouter).catch(err => console);
+  await initCustomRouter(customRouter, websocketRouter).catch(err => console.log(err));
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
