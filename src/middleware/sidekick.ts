@@ -1,5 +1,6 @@
 import { ParameterizedContext, Next } from "koa";
 import {query, getClient } from "../database/admin";
+import { jwtToAuthStmt , getClient as getClientApi } from "../database/sidekick_api";
 import {genJWT} from "../utils/jwt";
 import {render_html} from "../render";
 
@@ -8,7 +9,10 @@ import {render_html} from "../render";
  */
 export async function inject_sidekick (ctx:ParameterizedContext, next:Next) {
   ctx.sidekick = {
-    db: { admin: { query, getClient } },
+    db: { 
+      admin: { query, getClient },
+      sidekick_api: { getClient: getClientApi, jwtToAuthStmt }
+     },
     view: {
       jwt: ctx.user,
       prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',

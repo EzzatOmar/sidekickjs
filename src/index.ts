@@ -112,7 +112,7 @@ async function initCustomRouter(customRouter?: Router<any, {}>, websocketRouter?
       }
     }
     if (typeof handler.delete === 'function') {
-      if (typeof handler.delet_mw === 'function') {
+      if (typeof handler.delete_mw === 'function') {
         // @ts-ignore 
         customRouter.delete(handlerPath, handler.delete_mw, handler.delete);
       } else {
