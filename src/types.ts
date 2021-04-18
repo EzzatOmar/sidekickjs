@@ -11,6 +11,10 @@ export interface CustomParameterizedContext extends ParameterizedContext {
       admin: {
         query: Query,
         getClient: ClientFn,
+      },
+      sidekick_api: { 
+        getClient: ClientFn, 
+        jwtToAuthStmt: (jwt:any) => string[] 
       }
     },
     view: {
