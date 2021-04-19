@@ -19,6 +19,7 @@ import { existsSync } from "fs";
 import { getFileFromDir } from "./utils/files";
 import { dynamic_mw } from "./dynamic_middleware";
 import { CustomParameterizedContext } from "./types";
+import { env } from "process";
 
 const SIDEKICK_API_CONNECTION_STRING = `postgres://sidekick_api:${process.env.PGUSER_API_PW}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
 const SIDEKICK_ADMIN_CONNECTION_STRING = `postgres://sidekick_admin:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}`;
@@ -230,7 +231,8 @@ async function initApp({ customRouter, customMW, websocketRouter }
   await initAdminRouter();
   app.use(catchException);
   app.use(rateLimitMW);
-  await initGraphQL();
+  if(process.env.GRAPHQL==='TRUE')
+    await initGraphQL();
   app.use(authViaJWT);
   await initCustomRouter(customRouter, websocketRouter).catch(err => console.log(err));
   await initWebServer();
