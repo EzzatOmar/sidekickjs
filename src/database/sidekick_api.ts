@@ -17,10 +17,10 @@ client.connectSync(SIDEKICK_API_CONNECTION_STRING);
  */
 export function jwtToAuthStmt(jwt?:any):string[] {
   if(jwt) {
-    let stmt = [`SET LOCAL role TO ${jwt.role};`];
+    let stmt = [`SET LOCAL role TO ${jwt.role || 'sidekick_public'};`];
     Object.keys(jwt).forEach(key => {
       stmt.push(`SET LOCAL jwt.claims.${key} TO '${jwt[key]}';`);
-    })
+    });
     return stmt;
   } else {
     return ["SET LOCAL role TO 'sidekick_public';"];
@@ -41,6 +41,30 @@ export function jwtToAuthStmt(jwt?:any):string[] {
 //   const res = await pool.query(jwtToAuthStmt(jwt) + text, params);
 //   return res;
 // }
+
+/**
+ * Executes a single transaction. If a jwt parsed object is passed then the role and claims will be set automatically.
+ * Releases the connection when done.
+ */
+export async function tx(jwt: any, stmt: string, params: any[] = []):Promise<QueryResult> {
+  const client: PoolClient & {lastQuery?: any[]} = await pool.connect();
+  let ret;
+  console.log(stmt, params);
+  try {
+    await client.query('BEGIN');
+    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
+    ret = await client.query(stmt, params);
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+  return ret;
+
+}
+
 
 export async function getClient():Promise<PoolClient & {lastQuery?: any[]}> {
   const client: PoolClient & {lastQuery?: any[]} = await pool.connect();

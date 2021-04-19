@@ -1,7 +1,8 @@
 import { Next, ParameterizedContext } from "koa";
 import { PoolClient, QueryResult } from "pg";
 
-type Query = (text: string, params: any) => Promise<QueryResult>;
+type Query = (text: string, params?: any) => Promise<QueryResult>;
+type Tx = (jwt:any, text: string, params?: any) => Promise<QueryResult>;
 type ClientFn = () => Promise<PoolClient & { lastQuery?: any[] }>;
 
 
@@ -14,7 +15,8 @@ export interface CustomParameterizedContext extends ParameterizedContext {
       },
       sidekick_api: { 
         getClient: ClientFn, 
-        jwtToAuthStmt: (jwt:any) => string[] 
+        jwtToAuthStmt: (jwt:any) => string[],
+        tx: Tx
       }
     },
     view: {
