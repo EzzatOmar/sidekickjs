@@ -3,7 +3,6 @@ import Handlebars_ from "handlebars";
 // import Hbs from "handlebars";
 import {getFileFromDir} from "./utils/files";
 import {ParameterizedContext, Next} from "koa";
-import { syncQueryReadOnly } from "./database/sidekick_api";
 // var promisedHandlebars = require('promised-handlebars')
 // const Handlebars = promisedHandlebars(Handlebars_)
 // var CustomHandlebars = promisedHandlebars(require('handlebars'));
