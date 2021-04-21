@@ -49,7 +49,6 @@ export function jwtToAuthStmt(jwt?:any):string[] {
 export async function tx(jwt: any, stmt: string, params: any[] = []):Promise<QueryResult> {
   const client: PoolClient & {lastQuery?: any[]} = await pool.connect();
   let ret;
-  console.log(stmt, params);
   try {
     await client.query('BEGIN');
     jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
@@ -63,6 +62,52 @@ export async function tx(jwt: any, stmt: string, params: any[] = []):Promise<Que
   }
   return ret;
 
+}
+
+/**
+ * Executes a multiple statements in a single transaction. If a jwt parsed object is passed then the role and claims will be set automatically.
+ * Releases the connection when done.
+ */
+export async function txs(jwt: any, stmts: {stmt: string, params: any[]}[]):Promise<QueryResult[]> {
+  const client: PoolClient & {lastQuery?: any[]} = await pool.connect();
+  let ret = [];
+  try {
+    await client.query('BEGIN');
+    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
+    for (const {stmt, params} of stmts){
+      let r = await client.query(stmt, params);
+      ret.push(r);
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+  return ret;
+}
+
+/**
+ * Executes a async fn in a single transaction. The fn should execute the a statement. If a jwt parsed object is passed then the role and claims will be set automatically.
+ * Releases the connection when done.
+ */
+export async function txFn(jwt: any, fn: (client: PoolClient) => Promise<any>):Promise<any> {
+  const client: PoolClient & {lastQuery?: any[]} = await pool.connect();
+  let ret;
+  try {
+    await client.query('BEGIN');
+    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
+    ret = await fn(client);
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+  return ret;
 }
 
 

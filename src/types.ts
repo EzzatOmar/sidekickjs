@@ -16,7 +16,9 @@ export interface CustomParameterizedContext extends ParameterizedContext {
       sidekick_api: { 
         getClient: ClientFn, 
         jwtToAuthStmt: (jwt:any) => string[],
-        tx: Tx
+        tx: Tx,
+        txs: (jwt: any, stmts: {stmt: string, params: any[]}[]) => Promise<QueryResult[]>,
+        txFn: (jwt: any, fn: (client: PoolClient) => Promise<any>) => Promise<any>
       }
     },
     view: {
