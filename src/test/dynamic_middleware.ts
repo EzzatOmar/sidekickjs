@@ -47,6 +47,12 @@ let args = [
      mockedFiles: ["custom/dist/pages/test/foo.html", "custom/dist/pages/test/index.html"],
      category: {slash: false, extension: "html", filename: "test"},
      searchResult: "custom/dist/pages/test/index.html"},
+
+     // TODO using placeholder is not possible yet. must be improved, use https://github.com/pillarjs/path-to-regexp for rewrite
+    //  {path: "/website/9c328a15-ec56-462d-b7a3-3e6e9024873d.html",
+    // mockedFiles: ["custom/dist/pages/website/:uuid/index.html"],
+    // category: {slash: false, extension: "html", filename: "website/9c328a15-ec56-462d-b7a3-3e6e9024873d"},
+    // searchResult: "custom/dist/pages/website/:uuid/index.html"},
 ];
 
 function test_pathToCategory() {

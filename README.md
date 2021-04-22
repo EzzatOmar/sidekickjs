@@ -65,3 +65,13 @@ The structure in pages follows the web path structure. You can overwrite the def
 
 The admin dashboard can be found with [localhost:3000/admin](https://localhost:3000/admin).
 
+
+
+## Example
+### SQL
+
+```html
+{{#sql 'select * from users;'}}
+  <div>Hello {{name}} your uuid is {{uuid}}</div>
+{{/sql}}
+```

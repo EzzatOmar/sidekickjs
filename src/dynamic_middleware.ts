@@ -64,6 +64,7 @@ function filepathTofilename(filePath: string) {
 /**
  * returns filepath relative from the provided path
  * check tests in test/dynamic_middleware.ts
+ * @TODO: improve by using https://github.com/pillarjs/path-to-regexp
  */
 function search_for_file_match(path:string, pagesDir:string):string | null {
   // get rid of starting ./
@@ -72,6 +73,7 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
   try {
       path = path.split('?')[0];
       let pathCategory = pathToCategory(path);
+      // console.log('pathCategory', pathCategory)
       let fileRegex:string;
       if(pathCategory.extension==='html') {
         fileRegex = `(${pathCategory.filename}|${pathCategory.filename}/index).*\.html`;
@@ -79,12 +81,14 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
         fileRegex = `${pathCategory.filename}.*\.${pathCategory.extension}`
       }
       let files = getFiles(pagesDir,fileRegex);
-      console.log(files)
+      // console.log(files)
       if (files.length === 0) return null;
 
       let filtered = files.filter((file: string)=>{
         return new RegExp(`^${pathCategory.filename}.*${pathCategory.extension}`).test(file.substring(pagesDir.length + 1)); 
       })
+      // console.log('regex', `^${pathCategory.filename}.*${pathCategory.extension}`)
+      // console.log('filtered', filtered)
 
       // every file must include index or the filename
       filtered = filtered.filter((file: string)=>{
@@ -92,6 +96,8 @@ function search_for_file_match(path:string, pagesDir:string):string | null {
         return filename === 'index' || pathCategory.filename.endsWith(filename)
       });
       
+      // console.log('filtered2', filtered)
+
       // if not trailing slash exclude index.*.html, except if we filter all matches out, then reverse
       if(!pathCategory.slash) {
         let temp = filtered.filter((file: string)=>{
