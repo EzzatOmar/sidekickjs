@@ -48,18 +48,16 @@ export function registerCustomPartials() {
 registerCustomPartials();
 
 export function registerCustomHelpers() {
-  CustomHandlebars.registerHelper('sql', function (args, options) {
-    // console.log(args, options);
-    // console.log(options.data.root.jwt);
+  CustomHandlebars.registerHelper('sql', function (stmt, options) {
     let jwt = options.data.root.jwt;
-
     try {
-      let r = syncQueryReadOnly(jwt, args, [])
-      
-      // console.log(r)
-      return r;
+      let ret = "";
+      let r = syncQueryReadOnly(jwt, stmt, [])
+      for(const context of r)
+        ret = ret + options.fn(context);
+      return ret;
     } catch (err) {
-      console.log(args, err);
+      console.log(stmt, err);
       return "BAD";
     }
 
@@ -95,12 +93,14 @@ export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   if( no_redirect && (is_html || is_handlebars) ){
     let html = await readStream(ctx.response.body);
     // NOTE: handlebars vars are resolved here
-    ctx.response.body = compile_handlebars(html, {
-      jwt: ctx.user,
+    let rendered = compile_handlebars(html, {
+      jwt: ctx.user || ctx.jwt,
       prod: (process.env.ENVIRONMENT as string).toLowerCase() === 'prod',
       staging: (process.env.ENVIRONMENT as string).toLowerCase() === 'staging',
       local: (process.env.ENVIRONMENT as string).toLowerCase() === 'local'
     });
+    ctx.response.body = rendered;
     if(ctx.url.endsWith(".handlebars")) ctx.response.set('Content-Type', 'text/plain');
+
   }
 }

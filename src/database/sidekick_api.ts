@@ -29,11 +29,12 @@ export function jwtToAuthStmt(jwt?:any):string[] {
 }
 
 export function syncQueryReadOnly(jwt: any, text:string, params:any = []):any[] {
-  client.querySync('BEGIN TRANSACTION ISOLATION LEVEL READ ONLY;');
+  client.querySync('BEGIN');
+  client.querySync('SET TRANSACTION READ ONLY');
   let stmts = jwtToAuthStmt(jwt);
   stmts.forEach(stmt => client.querySync(stmt));
   var x = client.querySync(text, params);
-  client.querySync('COMMIT;');
+  client.querySync('COMMIT');
   return x;
 }
 
