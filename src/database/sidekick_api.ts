@@ -18,9 +18,10 @@ client.connectSync(SIDEKICK_API_CONNECTION_STRING);
 export function jwtToAuthStmt(jwt?:any):string[] {
   if(jwt) {
     let stmt = [`SET LOCAL role TO ${jwt.role || 'sidekick_public'};`];
-    Object.keys(jwt).forEach(key => {
-      stmt.push(`SET LOCAL jwt.claims.${key} TO '${jwt[key]}';`);
-    });
+    if(jwt.claims)
+      Object.keys(jwt.claims).forEach(key => {
+        stmt.push(`SET LOCAL jwt.claims.${key} TO '${jwt.claims[key]}';`);
+      });
     return stmt;
   } else {
     return ["SET LOCAL role TO 'sidekick_public';"];
@@ -51,7 +52,10 @@ export async function tx(jwt: any, stmt: string, params: any[] = []):Promise<Que
   let ret;
   try {
     await client.query('BEGIN');
-    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
+
+    for(const stmt of jwtToAuthStmt(jwt))
+      await client.query(stmt);
+
     ret = await client.query(stmt, params);
     await client.query('COMMIT');
   } catch (err) {
@@ -73,8 +77,11 @@ export async function txs(jwt: any, stmts: {stmt: string, params: any[]}[]):Prom
   let ret = [];
   try {
     await client.query('BEGIN');
-    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
-    for (const {stmt, params} of stmts){
+
+    for(const stmt of jwtToAuthStmt(jwt))
+      await client.query(stmt);
+    
+      for (const {stmt, params} of stmts){
       let r = await client.query(stmt, params);
       ret.push(r);
     }
@@ -97,7 +104,10 @@ export async function txFn(jwt: any, fn: (client: PoolClient) => Promise<any>):P
   let ret;
   try {
     await client.query('BEGIN');
-    jwtToAuthStmt(jwt).forEach(async stmt => await client.query(stmt));
+
+    for(const stmt of jwtToAuthStmt(jwt))
+      await client.query(stmt);
+
     ret = await fn(client);
 
     await client.query('COMMIT');
