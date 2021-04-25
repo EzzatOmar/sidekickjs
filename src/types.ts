@@ -1,5 +1,6 @@
 import { Next, ParameterizedContext } from "koa";
 import { PoolClient, QueryResult } from "pg";
+import ws from "ws";
 
 type Query = (text: string, params?: any) => Promise<QueryResult>;
 type Tx = (jwt:any, text: string, params?: any) => Promise<QueryResult>;
@@ -7,6 +8,7 @@ type ClientFn = () => Promise<PoolClient & { lastQuery?: any[] }>;
 
 
 export interface CustomParameterizedContext extends ParameterizedContext {
+  websocket: ws,
   sidekick: {
     db: {
       admin: {
