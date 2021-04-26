@@ -56,14 +56,16 @@ async function initAdminRouter() {
     .use(adminRouter.allowedMethods());
 }
 
-async function initCustomRouter(customRouter?: Router<any, {}>, websocketRouter?: Router<any, {}>) {
+async function initCustomRouter(customRouter?: Router<any, {}>, customWebsocketRouter?: Router<any, {}>) {
   let handlerDirs = getFileFromDir("./custom/dist/pages", [], "handler\.js");
   console.log('Custom handler directories found: ', handlerDirs)
   if (!customRouter) {
+    console.log('No custom router found. Creating an empty Router.');
     customRouter = new Router();
   }
-  if (!websocketRouter) {
-    websocketRouter = new Router();
+  if (!customWebsocketRouter) {
+    console.log('No custom websocket router found. Creating an empty Router.');
+    customWebsocketRouter = new Router();
   }
 
   console.log('Searching for custom handler');
@@ -71,17 +73,17 @@ async function initCustomRouter(customRouter?: Router<any, {}>, websocketRouter?
   
   handlerDirs.forEach(path => {
     let handler = require('../' + path);
-    console.log('handler found:', handler);
     let handlerPath = "/" + path.split('/').splice(3).slice(0, -1).join('/');
+    console.log('handler found:', handler , 'for path:', handlerPath);
     
     // websocket router which needs to be put in app.ws.use
     if (typeof handler.websocket === 'function') {
       if (typeof handler.websocket_mw === 'function') {
         // @ts-ignore 
-        websocketRouter.all(handlerPath, handler.websocket_mw, handler.websocket);
+        customWebsocketRouter.all(handlerPath, handler.websocket_mw, handler.websocket);
       }
       // @ts-ignore 
-      websocketRouter.all(handlerPath, handler.websocket);
+      customWebsocketRouter.all(handlerPath, handler.websocket);
     }
 
     if (typeof handler.get === 'function') {
@@ -128,7 +130,7 @@ async function initCustomRouter(customRouter?: Router<any, {}>, websocketRouter?
     .use(customRouter.allowedMethods());
   app.ws.use(inject_sidekick);
     // @ts-ignore
-  app.ws.use(websocketRouter.routes());
+  app.ws.use(customWebsocketRouter.routes());
 }
 
 async function initGraphQL() {
@@ -219,10 +221,10 @@ async function initWebServer() {
     });
 }
 
-async function initApp({ customRouter, customMW, websocketRouter }
+async function initApp({ customRouter, customMW, customWebsocketRouter }
   : { 
     customRouter?: Router<any, {}>, customMW?: (ctx: ParameterizedContext, next: Next) => Promise<any>,
-    websocketRouter?: Router<any, {}>
+    customWebsocketRouter?: Router<any, {}>
    },
     ) {
   if (customMW) app.use(customMW);
@@ -234,7 +236,7 @@ async function initApp({ customRouter, customMW, websocketRouter }
   if(process.env.GRAPHQL==='TRUE')
     await initGraphQL();
   app.use(authViaJWT);
-  await initCustomRouter(customRouter, websocketRouter).catch(err => console.log(err));
+  await initCustomRouter(customRouter, customWebsocketRouter).catch(err => console.log(err));
   await initWebServer();
   app.listen(3000);
   await start_background_jobs();
@@ -246,11 +248,17 @@ try {
 } catch (err) {
   console.log(err)
 }
+let customWebsocketRouter;
+try {
+  customWebsocketRouter = require('../custom/dist/index').wsRouter;
+} catch (err) {
+  console.log(err)
+}
 let customMW;
 try {
   customMW = require('../custom/dist/index').middleware;
 } catch (err) {
 }
 initApp(
-  { customRouter, customMW }
+  { customRouter, customMW, customWebsocketRouter }
 ).catch(console.error)
