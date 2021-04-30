@@ -90,7 +90,7 @@ export async function mw_render_html(ctx: ParameterizedContext, next: Next) {
   let is_html = (!!ct && ctx.response.body && ct.includes('text/html'));
   let is_handlebars = ctx.url.endsWith(".handlebars");
   let no_redirect = ctx.status < 300 || 399 < ctx.status;
-  if( no_redirect && (is_html || is_handlebars) ){
+  if( no_redirect && (is_html || is_handlebars) && ctx.response.body.stream ){
     let html = await readStream(ctx.response.body);
     // NOTE: handlebars vars are resolved here
     let rendered = compile_handlebars(html, {
