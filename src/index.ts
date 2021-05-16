@@ -238,7 +238,7 @@ async function initApp({ customRouter, customMW, customWebsocketRouter }
   app.use(authViaJWT);
   await initCustomRouter(customRouter, customWebsocketRouter).catch(err => console.log(err));
   await initWebServer();
-  app.listen(3000);
+  app.listen(process.env.WEB_PORT);
   await start_background_jobs();
 }
 
