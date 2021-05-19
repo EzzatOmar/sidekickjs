@@ -128,7 +128,6 @@ export async function dynamic_mw(ctx: CustomParameterizedContext, next: Next) {
     let path = search_for_file_match(ctx.url, 'custom/dist/pages');
     console.log('path', path, ctx.url);
     if(path) {
-      path = path 
       let mw = path.split('.').filter(s => s.startsWith('mw_')).map(s => 
         {
           let [mw, args] = s.substr(3).split('?');
